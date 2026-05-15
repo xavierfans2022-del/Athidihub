@@ -1,0 +1,293 @@
+{
+	"@@locale": "en",
+	"appName": "Athidihub",
+	"home": "Home",
+	"dashboard": "Dashboard",
+	"properties": "Properties",
+	"tenants": "Tenants",
+	"invoices": "Invoices",
+	"payments": "Payments",
+	"maintenance": "Maintenance",
+	"documents": "Documents",
+	"errorLoadingDocuments": "Error loading documents",
+	"uploadedDocuments": "Uploaded Documents",
+	"verificationStatusTitle": "Verification Status",
+	"statusNotStarted": "Not Started",
+	"statusInProgress": "In Progress",
+	"statusVerified": "Verified",
+	"statusRejected": "Rejected",
+	"statusUnderReview": "Under Review",
+	"statusExpired": "Expired",
+	"statusRetryAvailable": "Retry Available",
+	"completionProgress": "Completion Progress",
+	"verificationInProgressTitle": "Verification in Progress",
+	"verificationInProgressSubtitle": "Please wait while we verify your Aadhaar. This may take a few minutes.",
+	"kycVerifiedSuccessfullyTitle": "KYC Verified Successfully",
+	"kycVerifiedSuccessfullySubtitle": "Your identity has been verified. You can now proceed with check-in.",
+	"verificationRejectedTitle": "Verification Rejected",
+	"retryInitiated": "Retry initiated",
+	"startKycVerificationButton": "Start KYC Verification",
+	"openDocumentUploadButton": "Open Document Upload",
+	"couldNotStartKyc": "Could not start KYC verification.",
+	"invalidKycVerificationUrl": "Invalid KYC verification URL.",
+	"couldNotOpenKycVerificationPage": "Could not open KYC verification page.",
+	"couldNotOpenDocument": "Could not open document",
+	"verifiedWithScore": "Verified ({score}%)",
+	"@verifiedWithScore": { "placeholders": { "score": { "type": "int" } } },
+	"pendingVerification": "Pending verification",
+	"view": "View",
+	"reupload": "Re-upload",
+	"statusReady": "Ready",
+	"statusPending": "Pending",
+	"statusNotReady": "Not Ready",
+	"aboutKycVerificationTitle": "About KYC Verification",
+	"aboutKycVerificationParagraph": "• KYC verification is required before check-in\n• We use secure Aadhaar verification for identity confirmation\n• Your data is encrypted and stored securely\n• Only the last 4 digits of Aadhaar are stored\n• Verification usually takes 5-10 minutes",
+	"profile": "Profile",
+	"all": "All",
+	"pendingStatus": "Pending",
+	"paidStatus": "Paid",
+	"overdueStatus": "Overdue",
+	"filtered": "Filtered",
+	"filterByMonth": "Filter by Month",
+	"clear": "Clear",
+	"apply": "Apply",
+	"searchInvoices": "Search by tenant name, email, phone...",
+	"pleaseSelectOrganizationFirst": "Please select an organization first",
+	"sendBulkReminders": "Send Bulk Reminders",
+	"sendPersonalizedWhatsAppReminders": "Send personalized WhatsApp reminders to all tenants with pending or overdue rent.",
+	"includeOverdue": "Include Overdue",
+	"remindForPastDueDates": "Remind for past due dates",
+	"dueWindow": "Due Window",
+	"dueWithinDays": "Due within {daysAhead} days",
+	"@dueWithinDays": {
+		"placeholders": {
+			"daysAhead": { "type": "int" }
+		}
+	},
+	"queuingWhatsAppMessages": "Queuing WhatsApp messages...",
+	"thisMayTakeAMoment": "This may take a moment",
+	"failedToSendReminders": "Failed to send reminders",
+	"close": "Close",
+	"sendNow": "Send Now",
+	"couldNotLoadInvoices": "Could not load invoices",
+	"noInvoicesFound": "No invoices found",
+	"tryDifferentSearchTerm": "Try a different search term",
+	"invoicesWillAppearHere": "Invoices will appear here",
+	"payNow": "Pay Now",
+	"paid": "Paid",
+	"due": "Due {dueDate}",
+	"@due": {
+		"placeholders": {
+			"dueDate": { "type": "String" }
+		}
+	},
+	"refresh": "Refresh",
+	"refreshing": "Refreshing...",
+	"goodMorning": "Good morning",
+	"goodAfternoon": "Good afternoon",
+	"goodEvening": "Good evening",
+	"portfolioOverview": "Here's your portfolio overview",
+	"occupancy": "Occupancy",
+	"vacantBeds": "Vacant Beds",
+	"revenueLastSixMonths": "Revenue (6 months)",
+	"recentActivity": "Recent Activity",
+	"setUpYourOrganization": "Set up your organization",
+	"createYourOrganizationDescription": "Create your organization to unlock properties, rooms, tenants, billing, and analytics.",
+	"createOrganization": "Create Organization",
+	"couldNotLoadDashboard": "Could not load dashboard",
+	"monthlyRevenue": "Monthly Revenue",
+	"fromLastMonth": "↑ 12% from last month",
+	"noRecentActivityYet": "No recent activity yet.",
+	"justNow": "just now",
+	"minutesAgo": "{minutes}m ago",
+	"@minutesAgo": {
+		"placeholders": {
+			"minutes": { "type": "int" }
+		}
+	},
+	"hoursAgo": "{hours}h ago",
+	"@hoursAgo": {
+		"placeholders": {
+			"hours": { "type": "int" }
+		}
+	},
+	"daysAgo": "{days}d ago",
+	"@daysAgo": {
+		"placeholders": {
+			"days": { "type": "int" }
+		}
+	},
+	"pleaseWaitBeforeRefreshingAgain": "Please wait {seconds} seconds before refreshing again",
+	"@pleaseWaitBeforeRefreshingAgain": {
+		"placeholders": {
+			"seconds": {
+				"type": "int"
+			}
+		}
+	},
+	"dataRefreshedSuccessfully": "Data refreshed successfully",
+	"failedToRefresh": "Failed to refresh: {error}",
+	"@failedToRefresh": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"webView": "Web View",
+	"retry": "Retry",
+	"errorPrefix": "Error: {message}",
+	"@errorPrefix": {
+		"placeholders": {
+			"message": {
+				"type": "String"
+			}
+		}
+	},
+	"pressBackAgainToExitApp": "Press back again to exit app",
+	"pressBackAgainToExitPortal": "Press back again to exit",
+	"signOut": "Sign Out",
+	"signOutTitle": "Sign Out",
+	"signOutMessage": "You will be logged out of your account.\nAny unsaved changes will be lost.",
+	"tenantPortalSignOutTitle": "Sign out of tenant portal?",
+	"tenantPortalSignOutMessage": "You'll be logged out from this device and returned to the login screen.",
+	"unsavedProfileChangesLost": "Any unsaved profile changes will be lost.",
+	"cancel": "Cancel",
+	"edit": "Edit",
+	"save": "Save",
+	"personalInfo": "Personal Info",
+	"fullName": "Full Name",
+	"phone": "Phone",
+	"cannotBeChanged": "Cannot be changed",
+	"emergencyContact": "Emergency Contact",
+	"yourAccount": "Your Account",
+	"role": "Role",
+	"owner": "Owner",
+	"tenant": "Tenant",
+	"status": "Status",
+	"active": "Active",
+	"appearance": "Appearance",
+	"darkMode": "Dark mode",
+	"useDarkAppearanceAcrossApp": "Use the dark appearance across the app",
+	"useDarkTheme": "Use dark theme",
+	"organization": "Organization",
+	"organizationDetails": "Organization Details",
+	"settings": "Settings",
+	"editProfile": "Edit Profile",
+	"stayInfo": "Stay Info",
+	"aadhaar": "Aadhaar",
+	"checkIn": "Check-In",
+	"verified": "Verified",
+	"pending": "Pending",
+	"done": "Done",
+	"inactive": "Inactive",
+	"more": "More",
+	"quickActions": "Quick Actions",
+	"addTenant": "Add Tenant",
+	"addProperty": "Add Property",
+	"kycReview": "KYC Review",
+	"reminders": "Reminders",
+	"noOrganizationSelected": "No organization selected",
+	"sendPaymentReminders": "Send Payment Reminders",
+	"send": "Send",
+	"daysCount": "{days} days",
+	"@daysCount": {
+		"placeholders": {
+			"days": {
+				"type": "int"
+			}
+		}
+	},
+	"optionalMessage": "Optional message",
+	"remindersQueued": "Reminders queued",
+	"notificationPreferences": "Notification Preferences",
+	"languageAndRegion": "Language & Region",
+	"securityAndPassword": "Security & Password",
+	"privacyPolicy": "Privacy Policy",
+	"helpAndSupport": "Help & Support",
+	"about": "About",
+	"version": "Version {version}",
+	"@version": {
+		"placeholders": {
+			"version": {
+				"type": "String"
+			}
+		}
+	},
+	"avatarUpdated": "Avatar updated!",
+	"photoUpdated": "Photo updated!",
+	"profileUpdated": "Profile updated!",
+	"uploadFailed": "Upload failed: {error}",
+	"@uploadFailed": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"saveFailed": "Save failed: {error}",
+	"@saveFailed": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"selectLanguage": "Select language",
+	"chooseAppLanguage": "Choose the app language",
+	"systemDefault": "System default",
+	"currentLanguage": "Current language",
+	"english": "English",
+	"hindi": "Hindi",
+	"telugu": "Telugu",
+	"languageSaved": "Language saved",
+	"verifyWithAadhaar": "Verify with Aadhaar",
+	"uploadDocumentsFallback": "Upload Documents (Fallback)",
+	"startNewVerification": "Start New Verification",
+	"retryVerification": "Retry Verification",
+	"uploadDocuments": "Upload Documents",
+	"submitForVerification": "Submit for Verification",
+	"takePhoto": "Take photo",
+	"chooseFromGallery": "Choose from gallery",
+	"flagged": "Flagged",
+	"unflagged": "Unflagged",
+	"previous": "Previous",
+	"next": "Next",
+	"approve": "Approve",
+	"reject": "Reject",
+	"viewDetails": "View Details",
+	"assignBed": "Assign Bed",
+	"recordPayment": "Record Payment",
+	"downloadPdf": "Download PDF",
+	"generateInvoice": "Generate Invoice",
+	"all": "All",
+	"close": "Close",
+	"failedToSendReminders": "Failed to send reminders",
+	"remindersQueued": "Reminders queued successfully",
+	"successfullyQueued": "Successfully queued",
+	"alreadySentToday": "Already sent today",
+	"missingPhoneNo": "Missing phone number",
+	"sendPersonalizedWhatsAppReminders": "Send personalized WhatsApp reminders",
+	"includeOverdue": "Include overdue",
+	"remindForPastDueDates": "Remind for past due dates",
+	"dueWindow": "Due window",
+	"dueWithinDays": "Due within {days} days",
+	"@dueWithinDays": {
+		"placeholders": {
+			"days": {
+				"type": "int"
+			}
+		}
+	},
+	"queuingWhatsAppMessages": "Queuing WhatsApp messages",
+	"thisMayTakeAMoment": "This may take a moment",
+	"sendNow": "Send now",
+	"daysCount": "{count, plural, =1{1 day} other{{count} days}}",
+	"@daysCount": {
+		"placeholders": {
+			"count": {
+				"type": "int"
+			}
+		}
+	}
+}

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "749268725625",
+    "project_id": "athidihub",
+    "storage_bucket": "athidihub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749268725625:android:3f352ce8309495598a09a8",
+        "android_client_info": {
+          "package_name": "com.athidihub.athidihub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd1dnxBlNgxxSgb3TsgavEQD7MRz6oVak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749268725625:android:62a2699542986e728a09a8",
+        "android_client_info": {
+          "package_name": "com.athidihub.athidihub_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd1dnxBlNgxxSgb3TsgavEQD7MRz6oVak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

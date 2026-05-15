@@ -1,0 +1,535 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+// ─── CORE ENTITIES ─────────────────────────────────────────
+
+model Profile {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  phone     String?  @unique
+  fullName  String?
+  avatarUrl String?
+  role      UserRole @default(OWNER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  organizations      Organization[]      @relation("OrgOwner")
+  orgMemberships     OrgMember[]
+  tenant             Tenant?
+  onboardingProgress OnboardingProgress?
+  fcmDeviceTokens    FcmDeviceToken[]
+}
+
+model Organization {
+  id           String   @id @default(uuid())
+  name         String
+  businessType String
+  gstNumber    String?
+  // address, city, state removed; use `logoUrl` for organization branding
+  ownerId      String
+  logoUrl      String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  owner         Profile        @relation("OrgOwner", fields: [ownerId], references: [id])
+  properties    Property[]
+  members       OrgMember[]
+  tenants       Tenant[]
+  invoices      Invoice[]
+  announcements Announcement[]
+  notificationLogs NotificationLog[]
+  kycVerifications KYCVerification[]
+}
+
+model OrgMember {
+  id             String       @id @default(uuid())
+  organizationId String
+  profileId      String
+  role           OrgRole      @default(MANAGER)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  profile        Profile      @relation(fields: [profileId], references: [id])
+}
+
+model Property {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  address        String
+  city           String
+  state          String
+  totalFloors    Int
+  amenities      String[]
+  imageUrls      String[]
+  managerId      String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  organization        Organization         @relation(fields: [organizationId], references: [id])
+  rooms               Room[]
+  maintenanceRequests MaintenanceRequest[]
+}
+
+model Room {
+  id              String   @id @default(uuid())
+  propertyId      String
+  floorNumber     Int
+  roomNumber      String
+  roomType        RoomType
+  isAC            Boolean  @default(false)
+  monthlyRent     Decimal
+  securityDeposit Decimal
+  capacity        Int
+  createdAt       DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+  beds     Bed[]
+}
+
+model Bed {
+  id        String    @id @default(uuid())
+  roomId    String
+  bedNumber String
+  bedType   BedType   @default(STANDARD)
+  status    BedStatus @default(AVAILABLE)
+  createdAt DateTime  @default(now())
+
+  room        Room         @relation(fields: [roomId], references: [id])
+  assignments Assignment[]
+}
+
+model Tenant {
+  id               String   @id @default(uuid())
+  profileId        String   @unique
+  organizationId   String
+  name             String
+  phone            String
+  email            String
+  avatarUrl        String?
+  aadhaarUrl       String?
+  aadhaarVerified  Boolean  @default(false)
+  aadhaarDetails   Json?
+  checkInCompleted Boolean  @default(false)
+  checkInDate      DateTime?
+  emergencyContact String
+  joiningDate      DateTime
+  // depositPaid removed — per-assignment security deposit handled on Assignment
+  agreementUrl     String?
+  hasAssignment    Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  profile             Profile              @relation(fields: [profileId], references: [id])
+  organization        Organization         @relation(fields: [organizationId], references: [id])
+  assignments         Assignment[]
+  invoices            Invoice[]
+  maintenanceRequests MaintenanceRequest[]
+  payments            Payment[]
+  whatsappLinks       WhatsAppLink[]
+  notificationLogs    NotificationLog[]
+  kycVerification     KYCVerification?
+}
+
+model Assignment {
+  id             String    @id @default(uuid())
+  tenantId       String
+  bedId          String
+  startDate      DateTime
+  endDate        DateTime?
+  isActive       Boolean   @default(true)
+  monthlyRent    Decimal   @default(0)
+  securityDeposit Decimal  @default(0)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  bed    Bed    @relation(fields: [bedId], references: [id])
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  tenantId       String
+  organizationId String
+  month          Int
+  year           Int
+  baseRent       Decimal
+  utilityCharges Decimal       @default(0)
+  foodCharges    Decimal       @default(0)
+  lateFee        Decimal       @default(0)
+  discount       Decimal       @default(0)
+  totalAmount    Decimal
+  dueDate        DateTime
+  status         InvoiceStatus @default(PENDING)
+  pdfUrl         String?
+  createdAt      DateTime      @default(now())
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  payment      Payment?
+  notificationLogs NotificationLog[]
+}
+
+model Payment {
+  id           String        @id @default(uuid())
+  invoiceId    String        @unique
+  tenantId     String
+  amount       Decimal
+  method       PaymentMethod
+  gatewayTxnId String?
+  status       PaymentStatus @default(PENDING)
+  paidAt       DateTime?
+  receiptUrl   String?
+  createdAt    DateTime      @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+}
+
+model MaintenanceRequest {
+  id          String            @id @default(uuid())
+  tenantId    String
+  propertyId  String
+  category    MaintenanceType
+  description String
+  imageUrls   String[]
+  status      MaintenanceStatus @default(PENDING)
+  assignedTo  String?
+  createdAt   DateTime          @default(now())
+  resolvedAt  DateTime?
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+}
+
+model Announcement {
+  id             String   @id @default(uuid())
+  organizationId String
+  title          String
+  body           String
+  channels       String[] // ["push", "whatsapp", "email"]
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model WhatsAppLink {
+  id         String   @id @default(uuid())
+  tenantId   String
+  url        String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model NotificationLog {
+  id                String    @id @default(uuid())
+  organizationId    String?
+  tenantId          String?
+  invoiceId         String?
+  type              String
+  provider          String
+  providerMessageId String?
+  status            String    @default("queued")
+  payload           Json?
+  error             String?
+  createdAt         DateTime  @default(now())
+  sentAt            DateTime?
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  tenant       Tenant?       @relation(fields: [tenantId], references: [id])
+  invoice      Invoice?      @relation(fields: [invoiceId], references: [id])
+}
+
+model FcmDeviceToken {
+  id         String   @id @default(uuid())
+  profileId   String
+  token       String   @unique
+  platform    FcmPlatform
+  deviceId    String?
+  deviceName  String?
+  appVersion  String?
+  locale      String?
+  timezone    String?
+  isActive    Boolean  @default(true)
+  lastSeenAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, isActive])
+}
+
+// ─── ENUMS ─────────────────────────────────────────────────
+
+enum UserRole {
+  OWNER
+  TENANT
+}
+
+enum OrgRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+enum OnboardingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum RoomType {
+  SINGLE
+  DOUBLE
+  TRIPLE
+  QUAD
+  DORMITORY
+}
+
+enum BedType {
+  STANDARD
+  BUNK
+  PREMIUM
+}
+
+enum BedStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  MAINTENANCE
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NET_BANKING
+  WALLET
+  CASH
+}
+
+enum FcmPlatform {
+  ANDROID
+  IOS
+  WEB
+}
+
+enum MaintenanceType {
+  ELECTRICITY
+  WATER
+  CLEANING
+  INTERNET
+  REPAIRS
+  OTHER
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ─── KYC VERIFICATION ENUMS ───────────────────────────────
+
+enum KYCVerificationStatus {
+  PENDING          // Initial state, verification not started
+  IN_PROGRESS      // Verification process initiated
+  VERIFIED         // Verification successful
+  REJECTED         // Verification failed
+  MANUAL_REVIEW    // Flagged for manual admin review
+  EXPIRED          // Verification session expired
+  RETRY            // Failed but eligible for retry
+}
+
+enum KYCVerificationProvider {
+  DIGILOCKER       // DigiLocker official API
+  SETU             // Setu aggregator
+  SIGNZY           // Signzy provider
+  HYPERVERGE       // HyperVerge provider
+  MANUAL           // Manual document upload
+}
+
+enum KYCDocumentType {
+  AADHAAR_FRONT
+  AADHAAR_BACK
+  PAN
+  SELFIE
+}
+
+enum AuditActionType {
+  VERIFICATION_INITIATED
+  VERIFICATION_COMPLETED
+  VERIFICATION_FAILED
+  VERIFICATION_APPROVED
+  VERIFICATION_REJECTED
+  DOCUMENT_UPLOADED
+  DOCUMENT_VERIFIED
+  DOCUMENT_REJECTED
+  ADMIN_REVIEW_ASSIGNED
+  ADMIN_APPROVED
+  ADMIN_REJECTED
+  CONSENT_GRANTED
+  CONSENT_REVOKED
+  VERIFICATION_RETRIED
+}
+
+// ─── KYC VERIFICATION MODELS ──────────────────────────────
+
+model KYCVerification {
+  id                          String                  @id @default(uuid())
+  tenantId                    String                  @unique
+  organizationId              String
+  status                      KYCVerificationStatus   @default(PENDING)
+  provider                    KYCVerificationProvider @default(DIGILOCKER)
+  
+  // Verified identity data (encrypted in database)
+  verifiedFullName            String?
+  verifiedEmail               String?
+  verifiedPhone               String?
+  verifiedDOB                 DateTime?
+  verifiedAddress             String?
+  maskedAadhaarNumber         String?  // Last 4 digits only (e.g., "****1234")
+  
+  // Reference and tracking
+  verificationReferenceId     String?
+  providerTransactionId       String?
+  verificationUrl             String?
+  digilockerSessionId         String?
+  digilockerReferenceId       String?
+  consentTimestamp            DateTime?
+  consentGrantedAt            DateTime?
+  consentRevokedAt            DateTime?
+  
+  // Failure tracking
+  failureReason               String?
+  failureCount                Int      @default(0)
+  lastFailureAt               DateTime?
+  nextRetryAt                 DateTime?
+  
+  // Admin review
+  reviewedBy                  String?
+  reviewedAt                  DateTime?
+  adminNotes                  String?
+  flaggedForSuspicion         Boolean  @default(false)
+  suspicionReason             String?
+  
+  // Expiry and lifecycle
+  expiresAt                   DateTime?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  tenant              Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  organization        Organization            @relation(fields: [organizationId], references: [id])
+  documents           KYCDocument[]
+  auditLogs           KYCAuditLog[]
+  webhookLogs         KYCWebhookLog[]
+}
+
+model KYCDocument {
+  id                  String          @id @default(uuid())
+  kycVerificationId   String
+  documentType        KYCDocumentType
+  fileUrl             String          // Encrypted storage path
+  fileName            String
+  fileSize            Int
+  mimeType            String
+  uploadedAt          DateTime        @default(now())
+  
+  // Verification details
+  verified            Boolean         @default(false)
+  verificationScore   Int?            // 0-100, ML-based confidence score
+  verifiedAt          DateTime?
+  rejectionReason     String?
+  
+  createdAt           DateTime        @default(now())
+
+  kycVerification     KYCVerification @relation(fields: [kycVerificationId], references: [id], onDelete: Cascade)
+}
+
+model KYCAuditLog {
+  id                  String              @id @default(uuid())
+  kycVerificationId   String
+  action              AuditActionType
+  
+  // Actor information
+  actorId             String?             // User who performed action (admin or system)
+  actorRole           String?             // ADMIN, SYSTEM, TENANT
+  
+  // Details
+  details             Json?               // Structured data about the action
+  reason              String?
+  ipAddress           String?
+  userAgent           String?
+  
+  createdAt           DateTime            @default(now())
+
+  kycVerification     KYCVerification @relation(fields: [kycVerificationId], references: [id], onDelete: Cascade)
+}
+
+model KYCWebhookLog {
+  id                  String              @id @default(uuid())
+  kycVerificationId   String
+  provider            KYCVerificationProvider
+  
+  // Webhook details
+  webhookEvent        String
+  webhookPayload      Json
+  signatureValid      Boolean             @default(false)
+  
+  // Response tracking
+  processedAt         DateTime?
+  errorMessage        String?
+  retryCount          Int                 @default(0)
+  
+  createdAt           DateTime            @default(now())
+
+  kycVerification     KYCVerification @relation(fields: [kycVerificationId], references: [id], onDelete: Cascade)
+}
+
+// ─── ONBOARDING PROGRESS ──────────────────────────────────
+
+model OnboardingProgress {
+  id                    String            @id @default(uuid())
+  profileId             String            @unique
+  profile               Profile           @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  currentStep           Int               @default(0) // 0=org, 1=property, 2=room, 3=bed
+  onboardingStatus      OnboardingStatus  @default(NOT_STARTED)
+  
+  // Track what's been created
+  organizationCreated   Boolean           @default(false)
+  propertyCreated       Boolean           @default(false)
+  roomCreated           Boolean           @default(false)
+  bedCreated            Boolean           @default(false)
+  
+  // Store IDs for editing
+  organizationId        String?
+  propertyId            String?
+  roomId                String?
+  
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  completedAt           DateTime?
+  
+  @@index([profileId, onboardingStatus])
+}

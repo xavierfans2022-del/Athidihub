@@ -1,0 +1,293 @@
+{
+	"@@locale": "te",
+	"appName": "అథిదిహబ్",
+	"home": "హోమ్",
+	"dashboard": "డాష్‌బోర్డ్",
+	"properties": "ఆస్తులు",
+	"tenants": "అద్దెకారులు",
+	"invoices": "ఇన్వాయిసులు",
+	"payments": "చెల్లింపులు",
+	"maintenance": "నిర్వహణ",
+	"documents": "పత్రాలు",
+	"errorLoadingDocuments": "పత్రాలను లోడ్ చేయలేకపోయాం",
+	"uploadedDocuments": "అప్‌లోడ్ చేసిన పత్రాలు",
+	"verificationStatusTitle": "సత్యాపన స్థితి",
+	"statusNotStarted": "ప్రారంభించలేదు",
+	"statusInProgress": "ప్రగతిలో ఉంది",
+	"statusVerified": "ధృవీకరించబడింది",
+	"statusRejected": "తిరస్కరించబడింది",
+	"statusUnderReview": "సమీక్షలో ఉంది",
+	"statusExpired": "కాలనంతరించిపోయింది",
+	"statusRetryAvailable": "మళ్లీ ప్రయత్నించడానికి উপলబ్దం",
+	"completionProgress": "సంపూర్ణత పురోగతి",
+	"verificationInProgressTitle": "సత్యాపన ప్రక్రియలో ఉంది",
+	"verificationInProgressSubtitle": "మేము మీ ఆధార్‌ను ధృవీకరిస్తున్నా వరకు వేచి ఉండండి. దీనిలో కొన్ని నిమిషాలు పట్టవచ్చు.",
+	"kycVerifiedSuccessfullyTitle": "KYC విజయవంతంగా ధృవీకరించబడింది",
+	"kycVerifiedSuccessfullySubtitle": "మీ గుర్తింపు ధృవీకరించబడింది. మీరు ఇప్పుడు చెక్-ఇన్ కొనసాగించవచ్చు.",
+	"verificationRejectedTitle": "సత్యాపన తిరస్కరించబడింది",
+	"retryInitiated": "పునఃప్రయత్నం ప్రారంభించబడింది",
+	"startKycVerificationButton": "KYC సత్యాపన ప్రారంభించండి",
+	"openDocumentUploadButton": "పత్రాల అప్‌లోడ్ ఓపెన్ చేయండి",
+	"couldNotStartKyc": "KYC సత్యాపన ప్రారంభించలేకపోయాం.",
+	"invalidKycVerificationUrl": "అసంగత KYC సత్యాపన URL.",
+	"couldNotOpenKycVerificationPage": "KYC సత్యాపన పేజీని తెరవలేకపోయాం.",
+	"couldNotOpenDocument": "పత్రాన్ని తెరవలేకపోయాం",
+	"verifiedWithScore": "ధృవీకరించబడింది ({score}%)",
+	"@verifiedWithScore": { "placeholders": { "score": { "type": "int" } } },
+	"pendingVerification": "సత్యాపన నిల్వలో ఉంది",
+	"view": "బ్రౌజ్",
+	"reupload": "మళ్లీ అప్‌లోడ్ చేయండి",
+	"statusReady": "సಿದ್ಧంగా ఉంది",
+	"statusPending": "పెండింగ్",
+	"statusNotReady": "సిద్ధం లేదు",
+	"aboutKycVerificationTitle": "KYC సత్యాపన గురించి",
+	"aboutKycVerificationParagraph": "• చెక్-ఇన్‌కు ముందు KYC సత్యాపన అవసరం\n• గుర్తింపు నిర్ధారణకు మేము సురక్షిత ఆధార్ సత్యాపనను ఉపయోగిస్తాం\n• మీ డేటా సంకేతీకృతంగా మరియు సురక్షితంగా నిల్వ చేయబడుతుంది\n• ఆధార్ యొక్క కేవలం చివరి 4 అంకెలే నిల్వ చేయబడతాయి\n• సత్యాపన సాధారణంగా 5-10 నిమిషాలు పడవచ్చు",
+	"profile": "ప్రొఫైల్",
+	"all": "అన్నీ",
+	"pendingStatus": "పెండింగ్",
+	"paidStatus": "చెల్లించబడింది",
+	"overdueStatus": "గడువు మించిపోయింది",
+	"filtered": "ఫిల్టర్ చేయబడింది",
+	"filterByMonth": "నెల ఆధారంగా ఫిల్టర్ చేయండి",
+	"clear": "తొలగించు",
+	"apply": "వర్తించు",
+	"searchInvoices": "అద్దెకారి పేరు, ఇమెయిల్, ఫోన్ ద్వారా వెతకండి...",
+	"pleaseSelectOrganizationFirst": "దయచేసి ముందుగా ఒక సంస్థను ఎంచుకోండి",
+	"sendBulkReminders": "బల్క్ రిమైండర్లు పంపండి",
+	"sendPersonalizedWhatsAppReminders": "పెండింగ్ లేదా గడువు మించిన అద్దె ఉన్న అన్ని అద్దెకారులకు వ్యక్తిగత WhatsApp రిమైండర్లు పంపండి.",
+	"includeOverdue": "గడువు మించినవి చేర్చండి",
+	"remindForPastDueDates": "గత గడువు తేదీల కోసం గుర్తు చేయండి",
+	"dueWindow": "గడువు విండో",
+	"dueWithinDays": "{daysAhead} రోజులలో గడువు",
+	"@dueWithinDays": {
+		"placeholders": {
+			"daysAhead": { "type": "int" }
+		}
+	},
+	"queuingWhatsAppMessages": "WhatsApp సందేశాలను క్యూలో ఉంచుతున్నాం...",
+	"thisMayTakeAMoment": "ఇది కొంత సమయం పడవచ్చు",
+	"failedToSendReminders": "రిమైండర్లు పంపడం విఫలమైంది",
+	"close": "మూసివేయి",
+	"sendNow": "ఇప్పుడే పంపు",
+	"couldNotLoadInvoices": "ఇన్వాయిసులు లోడ్ చేయలేకపోయాం",
+	"noInvoicesFound": "ఇన్వాయిసులు లభించలేదు",
+	"tryDifferentSearchTerm": "వేరే శోధన పదాన్ని ప్రయత్నించండి",
+	"invoicesWillAppearHere": "ఇన్వాయిసులు ఇక్కడ కనిపిస్తాయి",
+	"payNow": "ఇప్పుడే చెల్లించండి",
+	"paid": "చెల్లించబడింది",
+	"due": "గడువు {dueDate}",
+	"@due": {
+		"placeholders": {
+			"dueDate": { "type": "String" }
+		}
+	},
+	"refresh": "రిఫ్రెష్",
+	"refreshing": "రిఫ్రెష్ అవుతోంది...",
+	"goodMorning": "శుభోదయం",
+	"goodAfternoon": "శుభ మధ్యాహ్నం",
+	"goodEvening": "శుభ సాయంత్రం",
+	"portfolioOverview": "ఇది మీ పోర్ట్‌ఫోలియో అవలోకనం",
+	"occupancy": "ఆక్యుపెన్సీ",
+	"vacantBeds": "ఖాళీ బెడ్లు",
+	"revenueLastSixMonths": "ఆదాయం (6 నెలలు)",
+	"recentActivity": "ఇటీవలి కార్యకలాపం",
+	"setUpYourOrganization": "మీ సంస్థను ఏర్పాటు చేయండి",
+	"createYourOrganizationDescription": "ప్రాపర్టీలు, గదులు, అద్దెకారులు, బిల్లింగ్ మరియు అనలిటిక్స్‌ను అన్‌లాక్ చేయడానికి మీ సంస్థను సృష్టించండి.",
+	"createOrganization": "సంస్థను సృష్టించండి",
+	"couldNotLoadDashboard": "డాష్‌బోర్డ్‌ను లోడ్ చేయలేకపోయాం",
+	"monthlyRevenue": "మాసిక ఆదాయం",
+	"fromLastMonth": "గత నెలతో పోల్చితే ↑ 12%",
+	"noRecentActivityYet": "ఇంకా ఇటీవలి కార్యకలాపం లేదు.",
+	"justNow": "ఇప్పుడే",
+	"minutesAgo": "{minutes} నిమిషాల క్రితం",
+	"@minutesAgo": {
+		"placeholders": {
+			"minutes": { "type": "int" }
+		}
+	},
+	"hoursAgo": "{hours} గంటల క్రితం",
+	"@hoursAgo": {
+		"placeholders": {
+			"hours": { "type": "int" }
+		}
+	},
+	"daysAgo": "{days} రోజుల క్రితం",
+	"@daysAgo": {
+		"placeholders": {
+			"days": { "type": "int" }
+		}
+	},
+	"pleaseWaitBeforeRefreshingAgain": "మళ్లీ రిఫ్రెష్ చేయడానికి ముందు దయచేసి {seconds} సెకన్లు వేచిచూడండి",
+	"@pleaseWaitBeforeRefreshingAgain": {
+		"placeholders": {
+			"seconds": {
+				"type": "int"
+			}
+		}
+	},
+	"dataRefreshedSuccessfully": "డేటా విజయవంతంగా రిఫ్రెష్ అయ్యింది",
+	"failedToRefresh": "రిఫ్రెష్ చేయడం విఫలమైంది: {error}",
+	"@failedToRefresh": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"webView": "వెబ్ వ్యూ",
+	"retry": "మళ్లీ ప్రయత్నించండి",
+	"errorPrefix": "లోపం: {message}",
+	"@errorPrefix": {
+		"placeholders": {
+			"message": {
+				"type": "String"
+			}
+		}
+	},
+	"pressBackAgainToExitApp": "యాప్ నుండి బయటకు రావడానికి మళ్లీ వెనక్కి నొక్కండి",
+	"pressBackAgainToExitPortal": "బయటకు రావడానికి మళ్లీ వెనక్కి నొక్కండి",
+	"signOut": "సైన్ అవుట్",
+	"signOutTitle": "సైన్ అవుట్",
+	"signOutMessage": "మీరు మీ ఖాతా నుండి లాగ్ అవుట్ అవుతారు.\nసేవ్ చేయని మార్పులు పోతాయి.",
+	"tenantPortalSignOutTitle": "టెనెంట్ పోర్టల్ నుండి సైన్ అవుట్ చేయాలా?",
+	"tenantPortalSignOutMessage": "మీరు ఈ పరికరం నుండి లాగ్ అవుట్ అవుతారు మరియు లాగిన్ స్క్రీన్‌కు తిరిగి వెళ్తారు.",
+	"unsavedProfileChangesLost": "సేవ్ చేయని ప్రొఫైల్ మార్పులు పోతాయి.",
+	"cancel": "రద్దు",
+	"edit": "సవరించు",
+	"save": "సేవ్ చేయి",
+	"personalInfo": "వ్యక్తిగత సమాచారం",
+	"fullName": "పూర్తి పేరు",
+	"phone": "ఫోన్",
+	"cannotBeChanged": "మార్చలేరు",
+	"emergencyContact": "అత్యవసర సంప్రదింపు",
+	"yourAccount": "మీ ఖాతా",
+	"role": "పాత్ర",
+	"owner": "యజమాని",
+	"tenant": "అద్దెకారి",
+	"status": "స్థితి",
+	"active": "క్రియాశీలం",
+	"appearance": "రూపురేఖలు",
+	"darkMode": "డార్క్ మోడ్",
+	"useDarkAppearanceAcrossApp": "యాప్ అంతటా డార్క్ థీమ్‌ను ఉపయోగించండి",
+	"useDarkTheme": "డార్క్ థీమ్‌ను ఉపయోగించండి",
+	"organization": "సంస్థ",
+	"organizationDetails": "సంస్థ వివరాలు",
+	"settings": "సెట్టింగ్స్",
+	"editProfile": "ప్రొఫైల్‌ను సవరించు",
+	"stayInfo": "నివాస సమాచారం",
+	"aadhaar": "ఆధార్",
+	"checkIn": "చెక్-ఇన్",
+	"verified": "ధృవీకరించబడింది",
+	"pending": "పెండింగ్",
+	"done": "పూర్తైంది",
+	"inactive": "క్రియారహితం",
+	"more": "మరిన్ని",
+	"quickActions": "త్వరిత చర్యలు",
+	"addTenant": "అద్దెకారిని జోడించండి",
+	"addProperty": "ఆస్తిని జోడించండి",
+	"kycReview": "KYC సమీక్ష",
+	"reminders": "గుర్తింపులు",
+	"noOrganizationSelected": "ఏ సంస్థను ఎంచుకోలేదు",
+	"sendPaymentReminders": "చెల్లింపు గుర్తింపులు పంపండి",
+	"send": "పంపు",
+	"daysCount": "{days} రోజులు",
+	"@daysCount": {
+		"placeholders": {
+			"days": {
+				"type": "int"
+			}
+		}
+	},
+	"optionalMessage": "ఐచ్ఛిక సందేశం",
+	"remindersQueued": "గుర్తింపులు క్యూలో ఉన్నాయి",
+	"notificationPreferences": "నోటిఫికేషన్ ప్రాధాన్యతలు",
+	"languageAndRegion": "భాష & ప్రాంతం",
+	"securityAndPassword": "భద్రత & పాస్‌వర్డ్",
+	"privacyPolicy": "గోప్యతా విధానం",
+	"helpAndSupport": "సహాయం & మద్దతు",
+	"about": "గురించి",
+	"version": "వెర్షన్ {version}",
+	"@version": {
+		"placeholders": {
+			"version": {
+				"type": "String"
+			}
+		}
+	},
+	"avatarUpdated": "అవతార్ నవీకరించబడింది!",
+	"photoUpdated": "ఫోటో నవీకరించబడింది!",
+	"profileUpdated": "ప్రొఫైల్ నవీకరించబడింది!",
+	"uploadFailed": "అప్‌లోడ్ విఫలమైంది: {error}",
+	"@uploadFailed": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"saveFailed": "సేవ్ చేయడం విఫలమైంది: {error}",
+	"@saveFailed": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"selectLanguage": "భాషను ఎంచుకోండి",
+	"chooseAppLanguage": "యాప్ భాషను ఎంచుకోండి",
+	"systemDefault": "సిస్టమ్ డిఫాల్ట్",
+	"currentLanguage": "ప్రస్తుత భాష",
+	"english": "ఇంగ్లీష్",
+	"hindi": "హిందీ",
+	"telugu": "తెలుగు",
+	"languageSaved": "భాష సేవ్ చేయబడింది",
+	"verifyWithAadhaar": "ఆధార్‌తో ధృవీకరించండి",
+	"uploadDocumentsFallback": "పత్రాలు అప్‌లోడ్ చేయండి (వికల్పం)",
+	"startNewVerification": "కొత్త ధృవీకరణ ప్రారంభించండి",
+	"retryVerification": "ధృవీకరణను మళ్లీ ప్రయత్నించండి",
+	"uploadDocuments": "పత్రాలు అప్‌లోడ్ చేయండి",
+	"submitForVerification": "ధృవీకరణకు పంపండి",
+	"takePhoto": "ఫోటో తీసుకోండి",
+	"chooseFromGallery": "గ్యాలరీ నుండి ఎంచుకోండి",
+	"flagged": "ఫ్లాగ్ చేయబడింది",
+	"unflagged": "ఫ్లాగ్ చేయలేదు",
+	"previous": "మునుపటి",
+	"next": "తదుపరి",
+	"approve": "ఆమోదించండి",
+	"reject": "తిరస్కరించండి",
+	"viewDetails": "వివరాలు చూడండి",
+	"assignBed": "బెడ్ కేటాయించండి",
+	"recordPayment": "చెల్లింపు నమోదు చేయండి",
+	"downloadPdf": "PDF డౌన్‌లోడ్ చేయండి",
+	"generateInvoice": "ఇన్వాయిస్ సృష్టించండి",
+	"all": "అన్నీ",
+	"close": "మూసివేయి",
+	"failedToSendReminders": "రిమైండర్‌లు పంపడంలో విఫలమైంది",
+	"remindersQueued": "రిమైండర్‌లు విజయవంతంగా క్యూలో ఉంచబడ్డాయి",
+	"successfullyQueued": "విజయవంతంగా క్యూలో ఉంచబడ్డాయి",
+	"alreadySentToday": "ఈరోజు ఇప్పటికే పంపబడింది",
+	"missingPhoneNo": "ఫోన్ నంబర్ లేదు",
+	"sendPersonalizedWhatsAppReminders": "వ్యక్తిగతీకరించిన వాట్సాప్ రిమైండర్‌లను పంపండి",
+	"includeOverdue": "బకాయిలను చేర్చండి",
+	"remindForPastDueDates": "గత గడువు తేదీల కోసం గుర్తు చేయండి",
+	"dueWindow": "గడువు విండో",
+	"dueWithinDays": "{days} రోజుల్లోపు గడువు",
+	"@dueWithinDays": {
+		"placeholders": {
+			"days": {
+				"type": "int"
+			}
+		}
+	},
+	"queuingWhatsAppMessages": "వాట్సాప్ సందేశాలను క్యూలో ఉంచుతోంది",
+	"thisMayTakeAMoment": "దీనికి కొంత సమయం పట్టవచ్చు",
+	"sendNow": "ఇప్పుడే పంపు",
+	"daysCount": "{count, plural, =1{1 రోజు} other{{count} రోజులు}}",
+	"@daysCount": {
+		"placeholders": {
+			"count": {
+				"type": "int"
+			}
+		}
+	}
+}

@@ -1,0 +1,293 @@
+{
+	"@@locale": "hi",
+	"appName": "अथिदिहब",
+	"home": "होम",
+	"dashboard": "डैशबोर्ड",
+	"properties": "प्रॉपर्टी",
+	"tenants": "किरायेदार",
+	"invoices": "इनवॉइस",
+	"payments": "भुगतान",
+	"maintenance": "मेंटेनेंस",
+	"documents": "दस्तावेज़",
+	"errorLoadingDocuments": "दस्तावेज़ लोड नहीं हो सके",
+	"uploadedDocuments": "अपलोड किए गए दस्तावेज़",
+	"verificationStatusTitle": "सत्यापन स्थिति",
+	"statusNotStarted": "शुरू नहीं हुआ",
+	"statusInProgress": "प्रगति में",
+	"statusVerified": "सत्यापित",
+	"statusRejected": "अस्वीकृत",
+	"statusUnderReview": "समीक्षा के अंतर्गत",
+	"statusExpired": "समाप्त",
+	"statusRetryAvailable": "पुनः प्रयास उपलब्ध",
+	"completionProgress": "समाप्ति प्रगति",
+	"verificationInProgressTitle": "सत्यापन प्रगति में",
+	"verificationInProgressSubtitle": "कृपया प्रतीक्षा करें जबकि हम आपका आधार सत्यापित कर रहे हैं। इसमें कुछ मिनट लग सकते हैं।",
+	"kycVerifiedSuccessfullyTitle": "KYC सफलतापूर्वक सत्यापित",
+	"kycVerifiedSuccessfullySubtitle": "आपकी पहचान सत्यापित हो गई है। आप अब चेक-इन जारी रख सकते हैं।",
+	"verificationRejectedTitle": "सत्यापन अस्वीकृत",
+	"retryInitiated": "पुनः प्रयास आरंभ किया गया",
+	"startKycVerificationButton": "KYC सत्यापन शुरू करें",
+	"openDocumentUploadButton": "दस्तावेज़ अपलोड खोलें",
+	"couldNotStartKyc": "KYC सत्यापन शुरू नहीं किया जा सका।",
+	"invalidKycVerificationUrl": "अमान्य KYC सत्यापन URL।",
+	"couldNotOpenKycVerificationPage": "KYC सत्यापन पृष्ठ खोलने में विफल।",
+	"couldNotOpenDocument": "दस्तावेज़ खोलने में विफल",
+	"verifiedWithScore": "सत्यापित ({score}%)",
+	"@verifiedWithScore": { "placeholders": { "score": { "type": "int" } } },
+	"pendingVerification": "सत्यापन प्रतीक्षारत",
+	"view": "देखें",
+	"reupload": "पुनः अपलोड करें",
+	"statusReady": "तैयार",
+	"statusPending": "लंबित",
+	"statusNotReady": "तैयार नहीं",
+	"aboutKycVerificationTitle": "KYC सत्यापन के बारे में",
+	"aboutKycVerificationParagraph": "• चेक-इन से पहले KYC सत्यापन आवश्यक है\n• पहचान पुष्टि के लिए हम सुरक्षित आधार सत्यापन का उपयोग करते हैं\n• आपका डेटा एन्क्रिप्टेड और सुरक्षित रूप से संग्रहीत है\n• केवल आधार के अंतिम 4 अंक संग्रहीत किए जाते हैं\n• सत्यापन आमतौर पर 5-10 मिनट लेता है",
+	"profile": "प्रोफ़ाइल",
+	"all": "सभी",
+	"pendingStatus": "लंबित",
+	"paidStatus": "भुगतान किया गया",
+	"overdueStatus": "देय",
+	"filtered": "फ़िल्टर किया गया",
+	"filterByMonth": "महीने के अनुसार फ़िल्टर करें",
+	"clear": "साफ करें",
+	"apply": "लागू करें",
+	"searchInvoices": "किरायेदार का नाम, ईमेल, फ़ोन से खोजें...",
+	"pleaseSelectOrganizationFirst": "कृपया पहले एक संगठन चुनें",
+	"sendBulkReminders": "बल्क अनुस्मारक भेजें",
+	"sendPersonalizedWhatsAppReminders": "लंबित या देय किराए वाले सभी किरायेदारों को व्यक्तिगत WhatsApp अनुस्मारक भेजें।",
+	"includeOverdue": "देरी वाले शामिल करें",
+	"remindForPastDueDates": "पिछली देय तिथियों के लिए अनुस्मारक",
+	"dueWindow": "देय विंडो",
+	"dueWithinDays": "{daysAhead} दिनों के भीतर देय",
+	"@dueWithinDays": {
+		"placeholders": {
+			"daysAhead": { "type": "int" }
+		}
+	},
+	"queuingWhatsAppMessages": "WhatsApp संदेश कतार में भेजे जा रहे हैं...",
+	"thisMayTakeAMoment": "इसमें थोड़ा समय लग सकता है",
+	"failedToSendReminders": "अनुस्मारक भेजने में विफल",
+	"close": "बंद करें",
+	"sendNow": "अभी भेजें",
+	"couldNotLoadInvoices": "इनवॉइस लोड नहीं हो सके",
+	"noInvoicesFound": "कोई इनवॉइस नहीं मिला",
+	"tryDifferentSearchTerm": "कोई अलग खोज शब्द आज़माएँ",
+	"invoicesWillAppearHere": "इनवॉइस यहां दिखाई देंगे",
+	"payNow": "अभी भुगतान करें",
+	"paid": "भुगतान किया गया",
+	"due": "देय {dueDate}",
+	"@due": {
+		"placeholders": {
+			"dueDate": { "type": "String" }
+		}
+	},
+	"refresh": "रीफ़्रेश",
+	"refreshing": "रीफ़्रेश हो रहा है...",
+	"goodMorning": "सुप्रभात",
+	"goodAfternoon": "नमस्कार",
+	"goodEvening": "शुभ संध्या",
+	"portfolioOverview": "यहां आपके पोर्टफोलियो का अवलोकन है",
+	"occupancy": "अधिभोग",
+	"vacantBeds": "खाली बेड",
+	"revenueLastSixMonths": "राजस्व (6 महीने)",
+	"recentActivity": "हाल की गतिविधि",
+	"setUpYourOrganization": "अपना संगठन सेट करें",
+	"createYourOrganizationDescription": "प्रॉपर्टी, रूम, किरायेदार, बिलिंग और एनालिटिक्स अनलॉक करने के लिए अपना संगठन बनाएं।",
+	"createOrganization": "संगठन बनाएं",
+	"couldNotLoadDashboard": "डैशबोर्ड लोड नहीं हो सका",
+	"monthlyRevenue": "मासिक राजस्व",
+	"fromLastMonth": "पिछले महीने से ↑ 12%",
+	"noRecentActivityYet": "अभी तक कोई हालिया गतिविधि नहीं है।",
+	"justNow": "अभी अभी",
+	"minutesAgo": "{minutes} मिनट पहले",
+	"@minutesAgo": {
+		"placeholders": {
+			"minutes": { "type": "int" }
+		}
+	},
+	"hoursAgo": "{hours} घंटे पहले",
+	"@hoursAgo": {
+		"placeholders": {
+			"hours": { "type": "int" }
+		}
+	},
+	"daysAgo": "{days} दिन पहले",
+	"@daysAgo": {
+		"placeholders": {
+			"days": { "type": "int" }
+		}
+	},
+	"pleaseWaitBeforeRefreshingAgain": "कृपया फिर से रीफ़्रेश करने से पहले {seconds} सेकंड प्रतीक्षा करें",
+	"@pleaseWaitBeforeRefreshingAgain": {
+		"placeholders": {
+			"seconds": {
+				"type": "int"
+			}
+		}
+	},
+	"dataRefreshedSuccessfully": "डेटा सफलतापूर्वक रीफ़्रेश हो गया",
+	"failedToRefresh": "रीफ़्रेश करने में विफल: {error}",
+	"@failedToRefresh": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"webView": "वेब व्यू",
+	"retry": "पुनः प्रयास करें",
+	"errorPrefix": "त्रुटि: {message}",
+	"@errorPrefix": {
+		"placeholders": {
+			"message": {
+				"type": "String"
+			}
+		}
+	},
+	"pressBackAgainToExitApp": "ऐप से बाहर निकलने के लिए फिर से बैक दबाएँ",
+	"pressBackAgainToExitPortal": "बाहर निकलने के लिए फिर से बैक दबाएँ",
+	"signOut": "साइन आउट",
+	"signOutTitle": "साइन आउट",
+	"signOutMessage": "आप अपने खाते से लॉग आउट हो जाएंगे।\nकोई भी बिना सहेजे बदलाव खो जाएंगे।",
+	"tenantPortalSignOutTitle": "टेनेंट पोर्टल से साइन आउट करें?",
+	"tenantPortalSignOutMessage": "आप इस डिवाइस से लॉग आउट हो जाएंगे और लॉगिन स्क्रीन पर लौट आएंगे।",
+	"unsavedProfileChangesLost": "कोई भी बिना सहेजे प्रोफ़ाइल बदलाव खो जाएंगे।",
+	"cancel": "रद्द करें",
+	"edit": "संपादित करें",
+	"save": "सहेजें",
+	"personalInfo": "व्यक्तिगत जानकारी",
+	"fullName": "पूरा नाम",
+	"phone": "फ़ोन",
+	"cannotBeChanged": "बदला नहीं जा सकता",
+	"emergencyContact": "आपातकालीन संपर्क",
+	"yourAccount": "आपका खाता",
+	"role": "भूमिका",
+	"owner": "मालिक",
+	"tenant": "किरायेदार",
+	"status": "स्थिति",
+	"active": "सक्रिय",
+	"appearance": "दिखावट",
+	"darkMode": "डार्क मोड",
+	"useDarkAppearanceAcrossApp": "पूरे ऐप में डार्क थीम का उपयोग करें",
+	"useDarkTheme": "डार्क थीम का उपयोग करें",
+	"organization": "संगठन",
+	"organizationDetails": "संगठन विवरण",
+	"settings": "सेटिंग्स",
+	"editProfile": "प्रोफ़ाइल संपादित करें",
+	"stayInfo": "रहने की जानकारी",
+	"aadhaar": "आधार",
+	"checkIn": "चेक-इन",
+	"verified": "सत्यापित",
+	"pending": "लंबित",
+	"done": "पूरा",
+	"inactive": "निष्क्रिय",
+	"more": "और",
+	"quickActions": "त्वरित कार्य",
+	"addTenant": "किरायेदार जोड़ें",
+	"addProperty": "प्रॉपर्टी जोड़ें",
+	"kycReview": "KYC समीक्षा",
+	"reminders": "अनुस्मारक",
+	"noOrganizationSelected": "कोई संगठन चयनित नहीं है",
+	"sendPaymentReminders": "भुगतान अनुस्मारक भेजें",
+	"send": "भेजें",
+	"daysCount": "{days} दिन",
+	"@daysCount": {
+		"placeholders": {
+			"days": {
+				"type": "int"
+			}
+		}
+	},
+	"optionalMessage": "वैकल्पिक संदेश",
+	"remindersQueued": "अनुस्मारक कतार में हैं",
+	"notificationPreferences": "सूचना प्राथमिकताएँ",
+	"languageAndRegion": "भाषा और क्षेत्र",
+	"securityAndPassword": "सुरक्षा और पासवर्ड",
+	"privacyPolicy": "गोपनीयता नीति",
+	"helpAndSupport": "सहायता और समर्थन",
+	"about": "जानकारी",
+	"version": "संस्करण {version}",
+	"@version": {
+		"placeholders": {
+			"version": {
+				"type": "String"
+			}
+		}
+	},
+	"avatarUpdated": "अवतार अपडेट किया गया!",
+	"photoUpdated": "फ़ोटो अपडेट की गई!",
+	"profileUpdated": "प्रोफ़ाइल अपडेट की गई!",
+	"uploadFailed": "अपलोड विफल: {error}",
+	"@uploadFailed": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"saveFailed": "सहेजना विफल: {error}",
+	"@saveFailed": {
+		"placeholders": {
+			"error": {
+				"type": "String"
+			}
+		}
+	},
+	"selectLanguage": "भाषा चुनें",
+	"chooseAppLanguage": "ऐप की भाषा चुनें",
+	"systemDefault": "सिस्टम डिफ़ॉल्ट",
+	"currentLanguage": "वर्तमान भाषा",
+	"english": "अंग्रेज़ी",
+	"hindi": "हिंदी",
+	"telugu": "तेलुगु",
+	"languageSaved": "भाषा सहेजी गई",
+	"verifyWithAadhaar": "आधार से सत्यापित करें",
+	"uploadDocumentsFallback": "दस्तावेज़ अपलोड करें (वैकल्पिक)",
+	"startNewVerification": "नई सत्यापन प्रक्रिया शुरू करें",
+	"retryVerification": "सत्यापन पुनः प्रयास करें",
+	"uploadDocuments": "दस्तावेज़ अपलोड करें",
+	"submitForVerification": "सत्यापन के लिए भेजें",
+	"takePhoto": "फ़ोटो लें",
+	"chooseFromGallery": "गैलरी से चुनें",
+	"flagged": "चिह्नित",
+	"unflagged": "अचिह्नित",
+	"previous": "पिछला",
+	"next": "अगला",
+	"approve": "स्वीकृत करें",
+	"reject": "अस्वीकार करें",
+	"viewDetails": "विवरण देखें",
+	"assignBed": "बेड असाइन करें",
+	"recordPayment": "भुगतान दर्ज करें",
+	"downloadPdf": "PDF डाउनलोड करें",
+	"generateInvoice": "इनवॉइस बनाएं",
+	"all": "सभी",
+	"close": "बंद करें",
+	"failedToSendReminders": "रिमाइंडर भेजने में विफल",
+	"remindersQueued": "रिमाइंडर सफलतापूर्वक कतारबद्ध किए गए",
+	"successfullyQueued": "सफलतापूर्वक कतारबद्ध",
+	"alreadySentToday": "आज पहले ही भेजा जा चुका है",
+	"missingPhoneNo": "फ़ोन नंबर मौजूद नहीं है",
+	"sendPersonalizedWhatsAppReminders": "व्यक्तिगत व्हाट्सएप रिमाइंडर भेजें",
+	"includeOverdue": "बकाया शामिल करें",
+	"remindForPastDueDates": "पिछली देय तिथियों के लिए याद दिलाएं",
+	"dueWindow": "देय अवधि",
+	"dueWithinDays": "{days} दिनों के भीतर देय",
+	"@dueWithinDays": {
+		"placeholders": {
+			"days": {
+				"type": "int"
+			}
+		}
+	},
+	"queuingWhatsAppMessages": "व्हाट्सएप संदेश कतारबद्ध किए जा रहे हैं",
+	"thisMayTakeAMoment": "इसमें थोड़ा समय लग सकता है",
+	"sendNow": "अभी भेजें",
+	"daysCount": "{count, plural, =1{1 दिन} other{{count} दिन}}",
+	"@daysCount": {
+		"placeholders": {
+			"count": {
+				"type": "int"
+			}
+		}
+	}
+}
