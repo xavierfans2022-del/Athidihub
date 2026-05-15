@@ -16,14 +16,14 @@ class AppConstants {
 
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'http://10.107.2.110:8080';
+        return 'https://athidihub-production.up.railway.app';
       case TargetPlatform.iOS:
       case TargetPlatform.macOS:
       case TargetPlatform.windows:
       case TargetPlatform.linux:
         return 'http://127.0.0.1:8080';
       case TargetPlatform.fuchsia:         
-          return 'http://10.107.2.110:8080';
+          return 'https://athidihub-production.up.railway.app';
       }
   }
   static const Duration connectTimeout = Duration(seconds: 15);

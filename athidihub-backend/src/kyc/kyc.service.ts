@@ -176,9 +176,10 @@ export class KYCService {
         expiryInSeconds: verificationData.expiryInSeconds,
         status: KYCVerificationStatus.IN_PROGRESS,
       };
-    } catch (error) {
-      this.logger.error(`Failed to initiate KYC: ${error.message}`);
-      throw new BadRequestException(`Verification initiation failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to initiate KYC: ${message}`);
+      throw new BadRequestException(`Verification initiation failed: ${message}`);
     }
   }
 
@@ -378,7 +379,7 @@ export class KYCService {
       });
     }
 
-    const fileUrl = await this.uploadToSecureStorage(fileData, fileName, mimeType);
+    const fileUrl = this.resolveDocumentUrl(fileData);
 
     const document = await this.prisma.kYCDocument.create({
       data: {
@@ -478,21 +479,22 @@ export class KYCService {
         status: updatedKyc.status,
         message: 'Verification initiated. Please wait for approval.',
       };
-    } catch (error) {
-      this.logger.error(`OAuth callback processing failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`OAuth callback processing failed: ${message}`);
 
       // Update KYC with failure
       await this.prisma.kYCVerification.update({
         where: { id: verificationId },
         data: {
           status: KYCVerificationStatus.REJECTED,
-          failureReason: error.message,
+          failureReason: message,
           failureCount: { increment: 1 },
         },
       });
 
       await this.logAudit(verificationId, AuditActionType.VERIFICATION_FAILED, 'APP', {
-        error: error.message,
+        error: message,
       });
 
       throw error;
@@ -501,9 +503,16 @@ export class KYCService {
 
   // ─── UTILITIES ───────────────────────────────────────────
 
-  private async uploadToSecureStorage(fileData: string, fileName: string, mimeType: string): Promise<string> {
-    const hash = crypto.createHash('sha256').update(fileData).digest('hex').substring(0, 8);
-    return `secure-storage://${Date.now()}-${hash}/${fileName}`;
+  private resolveDocumentUrl(fileData: string): string {
+    const trimmed = fileData.trim();
+
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+
+    throw new BadRequestException(
+      'fileData must be a public Supabase URL for KYC document uploads',
+    );
   }
 
   private async logAudit(kycId: string, action: AuditActionType, role: string, details?: any) {
@@ -796,8 +805,9 @@ class DigiLockerProvider implements VerificationProvider {
       this.tokenExpiry = Date.now() + (response.data.expires_in || 86400) * 1000;
       
       return token;
-    } catch (error) {
-      const msg = error.response?.data?.message || error.message;
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const msg = err.response?.data?.message || err.message || String(error);
       this.logger.error(`Sandbox Auth Error: ${msg}`);
       throw new Error(`Failed to authenticate with Sandbox: ${msg}`);
     }
@@ -860,8 +870,9 @@ class DigiLockerProvider implements VerificationProvider {
         verificationUrl,
         expiryInSeconds: 30 * 60, // 30 minutes
       };
-    } catch (error) {
-      const msg = error.response?.data?.message || error.message;
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const msg = err.response?.data?.message || err.message || String(error);
       if (msg.toLowerCase().includes('privilege') || msg.toLowerCase().includes('priveilege')) {
         throw new Error(`Sandbox Initiation Error: Insufficient privileges. Please ensure "KYC DigiLocker" is enabled in your Sandbox.co.in dashboard for this API key.`);
       }
@@ -888,8 +899,9 @@ class DigiLockerProvider implements VerificationProvider {
       );
 
       return [{ type: 'aadhaar', data: docResponse.data }];
-    } catch (error) {
-      const msg = error.response?.data?.message || error.message;
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const msg = err.response?.data?.message || err.message || String(error);
       this.logger.error(`Sandbox Fetch Error: ${msg}`);
       throw new Error(`Document fetch failed: ${msg}`);
     }

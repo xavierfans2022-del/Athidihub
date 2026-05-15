@@ -323,6 +323,14 @@ class _AdminKYCDetailPanelState extends ConsumerState<AdminKYCDetailPanel> {
   }
 
   Widget _buildDetailPanel(BuildContext context, KYCDetails details) {
+    final canReview = switch (details.verification.status) {
+      KYCVerificationStatus.pending => true,
+      KYCVerificationStatus.inProgress => true,
+      KYCVerificationStatus.manualReview => true,
+      KYCVerificationStatus.retry => true,
+      _ => false,
+    };
+
     return DraggableScrollableSheet(
       expand: false,
       builder: (context, scrollController) => SingleChildScrollView(
@@ -346,8 +354,6 @@ class _AdminKYCDetailPanelState extends ConsumerState<AdminKYCDetailPanel> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Tenant Info
               if (details.tenantInfo != null)
                 Card(
                   child: Padding(
@@ -355,10 +361,7 @@ class _AdminKYCDetailPanelState extends ConsumerState<AdminKYCDetailPanel> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Tenant Information',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        const Text('Tenant Information', style: TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         Text('Name: ${details.tenantInfo!.name}'),
                         Text('Email: ${details.tenantInfo!.email}'),
@@ -368,8 +371,6 @@ class _AdminKYCDetailPanelState extends ConsumerState<AdminKYCDetailPanel> {
                   ),
                 ),
               const SizedBox(height: 16),
-
-              // Verification Status
               Card(
                 color: Colors.blue.withOpacity(0.1),
                 child: Padding(
@@ -377,49 +378,45 @@ class _AdminKYCDetailPanelState extends ConsumerState<AdminKYCDetailPanel> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Verification Status',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      const Text('Verification Status', style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Text('Status: ${details.verification.status}'),
-                      Text(
-                        'Aadhaar: ${details.verification.maskedAadhaarNumber ?? 'Not verified'}',
-                      ),
-                      Text(
-                        'Reference ID: ${details.verification.verificationReferenceId ?? 'N/A'}',
-                      ),
+                      Text('Aadhaar: ${details.verification.maskedAadhaarNumber ?? 'Not verified'}'),
+                      Text('Reference ID: ${details.verification.verificationReferenceId ?? 'N/A'}'),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Uploaded Documents
               if (details.documents.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Uploaded Documents',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    const Text('Uploaded Documents', style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    ...details.documents.map(
-                      (doc) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Card(
-                          child: ListTile(
-                            leading: SizedBox(
-                              width: 56,
-                              height: 56,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: doc.fileUrl != null
-                                    ? Image.network(
-                                        doc.fileUrl!,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => Container(
+                    ...details.documents.map((doc) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Card(
+                            child: ListTile(
+                              leading: SizedBox(
+                                width: 56,
+                                height: 56,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: doc.fileUrl != null
+                                      ? Image.network(
+                                          doc.fileUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) => Container(
+                                            color: Colors.grey.shade200,
+                                            alignment: Alignment.center,
+                                            child: Icon(
+                                              doc.verified ? Icons.check_circle : Icons.description,
+                                              color: doc.verified ? Colors.green : Colors.grey,
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
                                           color: Colors.grey.shade200,
                                           alignment: Alignment.center,
                                           child: Icon(
@@ -427,112 +424,103 @@ class _AdminKYCDetailPanelState extends ConsumerState<AdminKYCDetailPanel> {
                                             color: doc.verified ? Colors.green : Colors.grey,
                                           ),
                                         ),
-                                      )
-                                    : Container(
-                                        color: Colors.grey.shade200,
-                                        alignment: Alignment.center,
-                                        child: Icon(
-                                          doc.verified ? Icons.check_circle : Icons.description,
-                                          color: doc.verified ? Colors.green : Colors.grey,
-                                        ),
-                                      ),
+                                ),
                               ),
+                              title: Text(_getDocumentLabel(doc.documentType)),
+                              subtitle: Text(
+                                doc.verified ? 'Verified' : (doc.fileUrl != null ? 'Tap open to preview' : 'Pending'),
+                              ),
+                              trailing: doc.fileUrl != null
+                                  ? IconButton(
+                                      icon: const Icon(Icons.open_in_new),
+                                      tooltip: 'Open document',
+                                      onPressed: () => _openDocumentPreview(
+                                        context,
+                                        _getDocumentLabel(doc.documentType),
+                                        doc.fileUrl!,
+                                      ),
+                                    )
+                                  : const Icon(Icons.link_off, color: Colors.grey),
                             ),
-                            title: Text(_getDocumentLabel(doc.documentType)),
-                            subtitle: Text(
-                              doc.verified
-                                  ? 'Verified'
-                                  : (doc.fileUrl != null ? 'Tap open to preview' : 'Pending'),
-                            ),
-                            trailing: doc.fileUrl != null
-                                ? IconButton(
-                                    icon: const Icon(Icons.open_in_new),
-                                    tooltip: 'Open document',
-                                    onPressed: () => _openDocumentPreview(
-                                      context,
-                                      _getDocumentLabel(doc.documentType),
-                                      doc.fileUrl!,
-                                    ),
-                                  )
-                                : const Icon(Icons.link_off, color: Colors.grey),
                           ),
-                        ),
+                        )),
+                  ],
+                ),
+              const SizedBox(height: 16),
+              if (canReview) ...[
+                const Divider(),
+                const SizedBox(height: 12),
+                const Text('Admin Actions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                CheckboxListTile(
+                  title: const Text('Flag for Suspension'),
+                  subtitle: const Text('Mark this profile as suspicious'),
+                  value: _flagForSuspicion,
+                  onChanged: (value) => setState(() {
+                    _flagForSuspicion = value ?? false;
+                  }),
+                ),
+                if (_flagForSuspicion)
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Enter reason for suspension...',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 2,
+                      onChanged: (value) => _suspicionReason = value,
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _notesController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter admin notes/reason...',
+                    border: OutlineInputBorder(),
+                    labelText: 'Admin Notes',
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.check),
+                        label: const Text('Approve'),
+                        onPressed: () => _approveKYC(),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.close),
+                        label: const Text('Reject'),
+                        onPressed: () => _rejectKYC(),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                       ),
                     ),
                   ],
                 ),
-              const SizedBox(height: 16),
-
-              // Admin Actions
-              const Divider(),
-              const SizedBox(height: 12),
-              const Text(
-                'Admin Actions',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-
-              // Flag for Suspension
-              CheckboxListTile(
-                title: const Text('Flag for Suspension'),
-                subtitle: const Text('Mark this profile as suspicious'),
-                value: _flagForSuspicion,
-                onChanged: (value) => setState(() {
-                  _flagForSuspicion = value ?? false;
-                }),
-              ),
-              if (_flagForSuspicion)
-                Padding(
+              ] else ...[
+                const Divider(),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(12),
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Enter reason for suspension...',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 2,
-                    onChanged: (value) => _suspicionReason = value,
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.withOpacity(0.2)),
+                  ),
+                  child: const Text(
+                    'This KYC record is already completed, so admin review actions are hidden.',
+                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
-              const SizedBox(height: 12),
-
-              // Admin Notes
-              TextField(
-                controller: _notesController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter admin notes/reason...',
-                  border: OutlineInputBorder(),
-                  labelText: 'Admin Notes',
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-
-              // Action Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.check),
-                      label: const Text('Approve'),
-                      onPressed: () => _approveKYC(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.close),
-                      label: const Text('Reject'),
-                      onPressed: () => _rejectKYC(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ],
           ),
         ),

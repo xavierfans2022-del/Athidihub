@@ -69,8 +69,9 @@ export class StorageService {
         avatarUrl: updatedProfile.avatarUrl || '',
         updatedAt: new Date(),
       };
-    } catch (error) {
-      this.logger.error(`Failed to upload avatar for user ${userId}: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to upload avatar for user ${userId}: ${message}`);
       // Attempt cleanup if DB update failed but storage succeeded
       await this.deleteFromStorage('avatars', objectPath).catch(() => {
         this.logger.warn(`Cleanup failed for ${objectPath} after upload error`);
@@ -143,8 +144,9 @@ export class StorageService {
         logoUrl,
         updatedAt,
       };
-    } catch (error) {
-      this.logger.error(`Failed to upload logo: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to upload logo: ${message}`);
       // Attempt cleanup if DB update failed but storage succeeded
       await this.deleteFromStorage('organization-logos', objectPath).catch(() => {
         this.logger.warn(`Cleanup failed for ${objectPath} after upload error`);
@@ -230,8 +232,9 @@ export class StorageService {
         avatarUrl: updatedTenant.avatarUrl || '',
         updatedAt: new Date(),
       };
-    } catch (error) {
-      this.logger.error(`Failed to upload tenant avatar for ${tenantId}: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to upload tenant avatar for ${tenantId}: ${message}`);
       // Attempt cleanup if DB update failed but storage succeeded
       await this.deleteFromStorage('avatars', objectPath).catch(() => {
         this.logger.warn(`Cleanup failed for ${objectPath} after upload error`);
@@ -277,8 +280,9 @@ export class StorageService {
     try {
       const client = this.getSupabaseAdminClient();
       await client.storage.from(bucket).remove([objectPath]);
-    } catch (error) {
-      this.logger.warn(`Failed to delete ${objectPath} from ${bucket}: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Failed to delete ${objectPath} from ${bucket}: ${message}`);
     }
   }
 

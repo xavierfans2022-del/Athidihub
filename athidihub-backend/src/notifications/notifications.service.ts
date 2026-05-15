@@ -11,6 +11,7 @@ export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
   private readonly provider = new TwilioWhatsAppProvider();
   private readonly isDev = process.env.NODE_ENV !== 'production';
+  private readonly queueEnabled = process.env.NOTIFICATIONS_USE_QUEUE !== 'false';
 
   constructor(private readonly prisma: PrismaService, @InjectQueue(NOTIFICATIONS_QUEUE) private readonly queue?: Queue) {}
 
@@ -42,13 +43,24 @@ export class NotificationsService {
 
     this.logger.debug(`[NotificationsService] Created notificationLog id=${log.id}`);
 
-    // In dev mode, send synchronously without queue; in production use Bull queue
-    if (this.isDev) {
-      this.logger.debug(`[NotificationsService] Dev mode: sending notification synchronously`);
+    // In dev mode, always send synchronously without queue.
+    if (this.isDev || !this.queueEnabled) {
+      this.logger.debug(`[NotificationsService] Queue bypass enabled: sending notification synchronously`);
       this.sendNotificationDirectly(log.id).catch((err) => this.logger.error('Direct send failed', err));
     } else if (this.queue) {
       this.logger.debug(`[NotificationsService] Production mode: adding to queue`);
-      await this.queue.add('send', { notificationLogId: log.id });
+      try {
+        await this.queue.add('send', { notificationLogId: log.id });
+      } catch (error: any) {
+        // Fall back to direct delivery when Redis is unavailable to prevent bulk reminder runs from failing.
+        this.logger.error(
+          `[NotificationsService] Queue add failed, falling back to direct send: ${error?.message ?? error}`,
+        );
+        this.sendNotificationDirectly(log.id).catch((err) => this.logger.error('Direct send failed', err));
+      }
+    } else {
+      this.logger.warn('[NotificationsService] Queue provider unavailable, falling back to direct send');
+      this.sendNotificationDirectly(log.id).catch((err) => this.logger.error('Direct send failed', err));
     }
 
     return log;

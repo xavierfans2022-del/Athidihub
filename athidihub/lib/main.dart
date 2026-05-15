@@ -1,4 +1,5 @@
 ﻿import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,8 +25,19 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
-void main() async { 
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Install global error handlers before any async startup work.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    Observability.logError(details.exception, details.stack);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    Observability.logError(error, stack);
+    return true;
+  };
 
   // Lock orientation
   await SystemChrome.setPreferredOrientations([
@@ -46,12 +58,6 @@ void main() async {
   // Initialize observability (Analytics, Crashlytics, Performance)
   await Observability.initialize();
 
-  // Install global error handlers for Crashlytics
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    Observability.logError(details.exception, details.stack);
-  };
-
   // Init Supabase
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
@@ -64,19 +70,14 @@ void main() async {
   // Initialize cache service
   final cacheService = await initializeCacheService();
 
-  // Run the app inside a guarded zone so uncaught errors are reported to Crashlytics
-  runZonedGuarded(() {
-    runApp(
-      ProviderScope(
+  runApp(
+    ProviderScope(
       overrides: [
         cacheServiceProvider.overrideWithValue(cacheService),
       ],
       child: const AthidihubApp(),
-      ),
-    );
-  }, (error, stack) async {
-    await Observability.logError(error, stack);
-  });
+    ),
+  );
 }
 
 class AthidihubApp extends ConsumerWidget {
