@@ -70,6 +70,45 @@ export class TwilioWhatsAppProvider {
     };
   }
 
+  async sendTemplate(phone: string, template: WhatsAppTemplate) {
+    if (!this.isConfigured || !this.client) {
+      if (this.isProduction && !this.allowMock) {
+        throw new Error('Twilio WhatsApp provider is not configured for template sending.');
+      }
+
+      this.logger.warn('Twilio WhatsApp is not configured. Returning a simulated template message id in non-configured environment.');
+      return { sid: `dev-template-${Date.now()}` };
+    }
+
+    const to = this.normalizeWhatsAppNumber(phone);
+
+    // Attempt to use Twilio's content/template API. The structure below follows Twilio's 'content' payload for WhatsApp templates.
+    // Depending on your Twilio SDK version you may need to adapt fields. We use a permissive call to avoid strict typings here.
+    try {
+      const message = await this.client.messages.create(({
+        to,
+        from: this.fromNumber ? this.normalizeWhatsAppNumber(this.fromNumber) : undefined,
+        messagingServiceSid: this.messagingServiceSid,
+        // content array with template descriptor
+        content: [
+          {
+            type: 'template',
+            template: {
+              name: template.name,
+              language: { code: template.language?.code ?? 'en' },
+              components: template.components ?? [],
+            },
+          },
+        ],
+      } as any));
+
+      return { id: message.sid, sid: message.sid, status: message.status };
+    } catch (err: any) {
+      this.logger.error(`Template send failed: ${String(err?.message ?? err)}`);
+      throw err;
+    }
+  }
+
   private normalizeWhatsAppNumber(phone: string): string {
     const raw = phone.trim();
     const withoutPrefix = raw.startsWith('whatsapp:')

@@ -99,16 +99,45 @@ export class NotificationsService {
       const media = payload.mediaUrl;
 
       this.logger.debug(`[NotificationsService] Calling provider for ${phone.slice(-4)}`);
-      const res = await this.provider.sendMessage({
-        phone,
-        text,
-        mediaUrl: media,
-        template: payload.template,
-      });
-      const providerMessageId = res?.sid ?? res?.id ?? JSON.stringify(res);
 
-      this.logger.debug(`[NotificationsService] Message sent. providerMessageId=${providerMessageId}`);
-      await this.markAsSent(log.id, String(providerMessageId));
+      try {
+        const res = await this.provider.sendMessage({ phone, text, mediaUrl: media, template: payload.template });
+        const providerMessageId = res?.sid ?? res?.id ?? JSON.stringify(res);
+        this.logger.debug(`[NotificationsService] Message sent. providerMessageId=${providerMessageId}`);
+        await this.markAsSent(log.id, String(providerMessageId));
+      } catch (sendErr: any) {
+        // Handle Twilio "Outside messaging window" (63016) by attempting template send or falling back.
+        const errMsg = String(sendErr?.message ?? sendErr);
+        const isOutsideWindow = sendErr?.code === 63016 || errMsg.includes('63016') || errMsg.toLowerCase().includes('outside messaging window');
+
+        if (isOutsideWindow) {
+          this.logger.warn(`[NotificationsService] Provider reported outside messaging window for ${phone.slice(-4)}: ${errMsg}`);
+
+          // If a template payload is available, attempt to send it (templates must be approved by WhatsApp/Meta).
+          if (payload.template) {
+            this.logger.debug(`[NotificationsService] Attempting template send for notificationLog=${log.id}`);
+            try {
+              const tRes = await this.provider.sendTemplate(phone, payload.template);
+              const tId = tRes?.sid ?? tRes?.id ?? JSON.stringify(tRes);
+              this.logger.debug(`[NotificationsService] Template sent. providerMessageId=${tId}`);
+              await this.markAsSent(log.id, String(tId));
+              return;
+            } catch (tErr: any) {
+              this.logger.error(`[NotificationsService] Template send failed: ${String(tErr?.message ?? tErr)}`);
+              await this.markAsFailed(log.id, `Template send failed: ${String(tErr?.message ?? tErr)}`);
+              return;
+            }
+          }
+
+          // No template configured: mark failed with explicit guidance for operator/ops.
+          await this.markAsFailed(log.id, 'Outside messaging window (63016): template required for business-initiated WhatsApp messages');
+          return;
+        }
+
+        // Non-63016 errors: mark as failed and record the error.
+        this.logger.error(`[NotificationsService] Send error: ${errMsg}`);
+        await this.markAsFailed(log.id, errMsg);
+      }
     } catch (err: any) {
       this.logger.error(`[NotificationsService] Error: ${err?.message ?? err}`, err?.stack);
       await this.markAsFailed(log.id, String(err?.message ?? err));
