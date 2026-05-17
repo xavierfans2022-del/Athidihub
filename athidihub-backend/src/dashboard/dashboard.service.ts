@@ -235,7 +235,6 @@ export class DashboardService {
     return {
       profile: {
         id: profile.id,
-        email: profile.email,
         phone: profile.phone,
         fullName: profile.fullName,
         avatarUrl: (profile as any).avatarUrl ?? null,

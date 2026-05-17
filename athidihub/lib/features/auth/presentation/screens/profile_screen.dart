@@ -254,8 +254,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final user = ref.watch(currentUserProvider);
     final name = _nameCtrl.text.isNotEmpty
         ? _nameCtrl.text
-        : (user?.email?.split('@').first ?? 'User');
-    final email = user?.email ?? '';
+      : (user?.phone ?? 'User');
+    final phone = user?.phone ?? '';
     final avatarUrl = user?.userMetadata?['avatar_url'] as String?;
     final initials = name
         .split(' ')
@@ -424,7 +424,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      email,
+                      phone,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),

@@ -33,6 +33,7 @@ class AppConstants {
   static const String supabaseUrl = 'https://bnaidwubkwzqzkgwxtux.supabase.co';
   static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuYWlkd3Via3d6cXprZ3d4dHV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NjI0NzQsImV4cCI6MjA5MzAzODQ3NH0.f8cGWbB3gn0aKQhp3I-zOsecpJGz6ZJjfe7UXxpJLtI';
   static const String firebaseWebVapidKey = String.fromEnvironment('FIREBASE_WEB_VAPID_KEY');
+  static const String defaultPhoneCountryCode = '+91';
 
   // ── Razorpay ───────────────────────────────────────────────
   static const String razorpayKeyId = 'YOUR_RAZORPAY_KEY_ID';

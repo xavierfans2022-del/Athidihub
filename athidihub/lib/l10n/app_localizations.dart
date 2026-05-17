@@ -418,11 +418,23 @@ abstract class AppLocalizations {
   /// **'Send Bulk Reminders'**
   String get sendBulkReminders;
 
+  /// No description provided for @sendBulkCallReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Bulk Call Reminders'**
+  String get sendBulkCallReminders;
+
   /// No description provided for @sendPersonalizedWhatsAppReminders.
   ///
   /// In en, this message translates to:
   /// **'Send personalized WhatsApp reminders'**
   String get sendPersonalizedWhatsAppReminders;
+
+  /// No description provided for @sendPersonalizedCallReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Send personalized call reminders to all tenants with pending or overdue rent.'**
+  String get sendPersonalizedCallReminders;
 
   /// No description provided for @includeOverdue.
   ///
@@ -453,6 +465,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Queuing WhatsApp messages'**
   String get queuingWhatsAppMessages;
+
+  /// No description provided for @queuingCallReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Queuing call reminders...'**
+  String get queuingCallReminders;
 
   /// No description provided for @thisMayTakeAMoment.
   ///
@@ -1209,6 +1227,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Generate Invoice'**
   String get generateInvoice;
+
+  /// No description provided for @callRemindersQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Call reminders queued successfully'**
+  String get callRemindersQueued;
 
   /// No description provided for @successfullyQueued.
   ///

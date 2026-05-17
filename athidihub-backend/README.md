@@ -47,6 +47,12 @@ For Twilio WhatsApp delivery, define:
 - `TWILIO_WHATSAPP_FROM` (format: `whatsapp:+14155238886`) or `TWILIO_MESSAGING_SERVICE_SID`
 - `WHATSAPP_ALLOW_MOCK=false` in production to fail fast on missing Twilio config
 
+For optional Twilio voice reminder calls, define:
+
+- `TWILIO_VOICE_FROM` (a verified Twilio voice-enabled number in E.164 format)
+- `TWILIO_VOICE_ALLOW_MOCK=true` for local dev if you want call jobs to simulate instead of placing real calls
+- `REMINDER_VOICE_CALLS_ENABLED=true` to enable voice calls for cron/bulk reminder runs by default
+
 Keep the service role key on the backend only. The Flutter app should continue using the anon key.
 
 ## Compile and run the project

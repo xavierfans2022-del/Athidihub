@@ -175,8 +175,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendBulkReminders => 'Send Bulk Reminders';
 
   @override
+  String get sendBulkCallReminders => 'Send Bulk Call Reminders';
+
+  @override
   String get sendPersonalizedWhatsAppReminders =>
       'Send personalized WhatsApp reminders';
+
+  @override
+  String get sendPersonalizedCallReminders =>
+      'Send personalized call reminders to all tenants with pending or overdue rent.';
 
   @override
   String get includeOverdue => 'Include overdue';
@@ -194,6 +201,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get queuingWhatsAppMessages => 'Queuing WhatsApp messages';
+
+  @override
+  String get queuingCallReminders => 'Queuing call reminders...';
 
   @override
   String get thisMayTakeAMoment => 'This may take a moment';
@@ -605,6 +615,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get generateInvoice => 'Generate Invoice';
+
+  @override
+  String get callRemindersQueued => 'Call reminders queued successfully';
 
   @override
   String get successfullyQueued => 'Successfully queued';

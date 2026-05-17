@@ -9,7 +9,6 @@ import 'package:athidihub/features/invoices/data/models/invoice_model.dart';
 import 'package:athidihub/features/notifications/providers/reminder_provider.dart';
 import 'package:athidihub/features/dashboard/providers/dashboard_provider.dart';
 import 'package:athidihub/shared/widgets/refresh_button.dart';
-import 'package:athidihub/core/constants/app_constants.dart';
 
 class InvoicesScreen extends ConsumerStatefulWidget {
   const InvoicesScreen({super.key});
@@ -254,7 +253,16 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
               color: Colors.green,
             ),
             tooltip: localizations.sendBulkReminders,
-            onPressed: _showReminderDialog,
+            onPressed: () => _showReminderDialog(voiceCall: false),
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.call_rounded,
+              size: 22,
+              color: Colors.deepOrange,
+            ),
+            tooltip: localizations.sendBulkCallReminders,
+            onPressed: () => _showReminderDialog(voiceCall: true),
           ),
         ],
       ),
@@ -364,7 +372,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     );
   }
 
-  void _showReminderDialog() async {
+  void _showReminderDialog({required bool voiceCall}) async {
     final organizationId = await ref.read(
       selectedOrganizationIdProvider.future,
     );
@@ -392,9 +400,16 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
           return AlertDialog(
             title: Row(
               children: [
-                Icon(Icons.message_rounded, color: Colors.green),
-                SizedBox(width: 10),
-                Text(localizations.sendBulkReminders),
+                Icon(
+                  voiceCall ? Icons.call_rounded : Icons.message_rounded,
+                  color: voiceCall ? Colors.deepOrange : Colors.green,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  voiceCall
+                      ? localizations.sendBulkCallReminders
+                      : localizations.sendBulkReminders,
+                ),
               ],
             ),
             content: reminderState.when(
@@ -410,7 +425,9 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        localizations.remindersQueued,
+                        voiceCall
+                            ? localizations.callRemindersQueued
+                            : localizations.remindersQueued,
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
@@ -439,7 +456,11 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(localizations.sendPersonalizedWhatsAppReminders),
+                        Text(
+                          voiceCall
+                              ? localizations.sendPersonalizedCallReminders
+                              : localizations.sendPersonalizedWhatsAppReminders,
+                        ),
                         const SizedBox(height: 20),
                         _OptionTile(
                           title: localizations.includeOverdue,
@@ -518,7 +539,11 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                   SizedBox(height: 20),
                   CircularProgressIndicator(strokeWidth: 3),
                   SizedBox(height: 20),
-                  Text(localizations.queuingWhatsAppMessages),
+                  Text(
+                    voiceCall
+                        ? localizations.queuingCallReminders
+                        : localizations.queuingWhatsAppMessages,
+                  ),
                   SizedBox(height: 10),
                   Text(
                     localizations.thisMayTakeAMoment,
@@ -574,6 +599,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                           organizationId: organizationId,
                           daysAhead: daysAhead,
                           includeOverdue: includeOverdue,
+                          voiceCall: voiceCall,
                         );
                   },
                   child: Text(localizations.sendNow),

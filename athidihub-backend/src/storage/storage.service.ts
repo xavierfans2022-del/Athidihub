@@ -81,6 +81,24 @@ export class StorageService {
   }
 
   /**
+   * Upload a raw buffer to storage (public) — useful for programmatically generated files
+   * @param bucket storage bucket name
+   * @param objectPath path within bucket
+   * @param buffer file buffer
+   * @param mimetype mime type
+   * @param originalname original file name (for extension resolution)
+   */
+  async uploadFileBuffer(
+    bucket: string,
+    objectPath: string,
+    buffer: Buffer,
+    mimetype: string,
+    originalname = 'file',
+  ): Promise<StorageUploadResponse> {
+    return this.upload(bucket, objectPath, { buffer, mimetype, originalname });
+  }
+
+  /**
    * Upload organization logo (with optional database persistence)
    * If organizationId is provided, saves to database; otherwise just returns URL
    * Useful for both onboarding (org not yet created) and updates (org exists)

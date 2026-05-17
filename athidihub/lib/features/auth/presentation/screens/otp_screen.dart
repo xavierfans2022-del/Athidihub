@@ -1,19 +1,19 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:athidihub/core/theme/app_colors.dart';
-import 'package:athidihub/core/constants/app_constants.dart';
 import 'package:athidihub/features/auth/providers/auth_provider.dart';
 import 'package:athidihub/shared/widgets/app_button.dart';
 import 'package:athidihub/shared/widgets/app_logo.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phone;
-  const OtpScreen({super.key, required this.phone});
+  final String nextRoute;
+  final Map<String, dynamic>? extraData;
 
+  const OtpScreen({super.key, required this.phone, required this.nextRoute, this.extraData});
   @override
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
 }
@@ -76,7 +76,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen>
       HapticFeedback.vibrate();
       return;
     }
-    await ref.read(authNotifierProvider.notifier).verifyOtp(widget.phone, _otp);
+    await ref.read(authNotifierProvider.notifier).verifyPhoneOtp(widget.phone, _otp);
+    if (!mounted || ref.read(authNotifierProvider).hasError) return;
+    context.go(widget.nextRoute, extra: widget.extraData);
   }
 
   Future<void> _resend() async {
@@ -84,7 +86,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen>
     setState(() => _isResending = true);
     for (final c in _controllers) c.clear();
     _focusNodes[0].requestFocus();
-    await ref.read(authNotifierProvider.notifier).loginWithPhone(widget.phone);
+    await ref.read(authNotifierProvider.notifier).requestPhoneOtp(widget.phone);
     if (mounted) {
       setState(() => _isResending = false);
       _startTimer();
@@ -119,7 +121,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen>
     if (id.length >= 10) {
       final clean = id.replaceAll(RegExp(r'\D'), '');
       if (clean.length >= 10) {
-        return '+91 ••••• ••${clean.substring(clean.length - 3)}';
+        return '+••• ••• ••${clean.substring(clean.length - 3)}';
       }
     }
     return id;
@@ -146,9 +148,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen>
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
-      }
-      if (!next.isLoading && !next.hasError && prev?.isLoading == true) {
-        context.go('/splash');
       }
     });
 

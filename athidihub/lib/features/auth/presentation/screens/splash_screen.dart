@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:athidihub/core/providers/supabase_provider.dart';
-import 'package:athidihub/core/theme/app_colors.dart';
+import 'package:athidihub/features/auth/providers/auth_provider.dart';
 import 'package:athidihub/features/dashboard/providers/dashboard_provider.dart';
 import 'package:athidihub/features/tenant_portal/providers/tenant_portal_provider.dart';
 
@@ -39,6 +39,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final session = ref.read(supabaseClientProvider).auth.currentSession;
     if (session == null) {
       context.go('/auth/login');
+      return;
+    }
+
+    if (!ref.read(mpinUnlockedProvider)) {
+      final route = ref.read(mpinFlowProvider) == MpinFlow.setup ? '/auth/mpin/setup' : '/auth/mpin/unlock';
+      context.go(route);
       return;
     }
 

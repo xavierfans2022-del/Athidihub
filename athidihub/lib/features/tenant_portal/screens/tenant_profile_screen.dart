@@ -271,8 +271,8 @@ class _State extends ConsumerState<TenantProfileScreen> {
 
     final name = _nameCtrl.text.isNotEmpty
         ? _nameCtrl.text
-        : (tenant?.name ?? user?.email?.split('@').first ?? 'Tenant');
-    final email = user?.email ?? tenant?.email ?? '';
+      : (tenant?.name ?? user?.phone ?? 'Tenant');
+    final phone = user?.phone ?? tenant?.phone ?? '';
     final avatarUrl = user?.userMetadata?['avatar_url'] as String?;
     final initials = name
         .split(' ')
@@ -434,7 +434,7 @@ class _State extends ConsumerState<TenantProfileScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      email,
+                      phone,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(

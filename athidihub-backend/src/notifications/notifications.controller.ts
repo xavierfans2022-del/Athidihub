@@ -13,11 +13,13 @@ interface BulkReminderDto {
   message?: string;
   force?: boolean;
   dryRun?: boolean;
+  voiceCall?: boolean;
 }
 
 interface CronReminderDto {
   daysAhead?: number;
   includeOverdue?: boolean;
+  voiceCall?: boolean;
 }
 
 @Controller('notifications')
@@ -40,6 +42,7 @@ export class NotificationsController {
     return this.tenantRemindersService.runCronPaymentReminders({
       daysAhead: body.daysAhead ?? 3,
       includeOverdue: body.includeOverdue ?? true,
+      voiceCall: body.voiceCall,
     });
   }
 
@@ -56,6 +59,7 @@ export class NotificationsController {
       mode: body.message?.trim() ? 'custom' : 'payment',
       force: body.force ?? false,
       dryRun: body.dryRun ?? false,
+      voiceCall: body.voiceCall,
     });
   }
 

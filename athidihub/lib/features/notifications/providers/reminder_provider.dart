@@ -23,6 +23,7 @@ class ReminderNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>?>> 
     bool includeOverdue = true,
     String? customMessage,
     bool force = false,
+    bool voiceCall = false,
   }) async {
     state = const AsyncValue.loading();
     try {
@@ -32,6 +33,7 @@ class ReminderNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>?>> 
         includeOverdue: includeOverdue,
         customMessage: customMessage,
         force: force,
+        voiceCall: voiceCall,
       );
       state = AsyncValue.data(result);
     } catch (e, st) {

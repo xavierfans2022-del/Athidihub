@@ -5,11 +5,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { NOTIFICATIONS_QUEUE } from './notifications.constants';
 import { TwilioWhatsAppProvider } from './providers/twilio-whatsapp.provider';
+import { TwilioVoiceProvider } from './providers/twilio-voice.provider';
 
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
   private readonly provider = new TwilioWhatsAppProvider();
+  private readonly voiceProvider = new TwilioVoiceProvider();
   private readonly isDev = process.env.NODE_ENV !== 'production';
   private readonly queueEnabled = process.env.NOTIFICATIONS_USE_QUEUE !== 'false';
 
@@ -29,14 +31,22 @@ export class NotificationsService {
   }
 
   async enqueueWhatsAppNotification(payload: { organizationId?: string; tenantId?: string; invoiceId?: string; type: string; data?: any }) {
-    this.logger.debug(`[NotificationsService] Enqueueing ${payload.type} for tenant=${payload.tenantId}`);
+    return this.enqueueNotification({ ...payload, provider: 'twilio-whatsapp' });
+  }
+
+  async enqueueVoiceCallNotification(payload: { organizationId?: string; tenantId?: string; invoiceId?: string; type: string; data?: any }) {
+    return this.enqueueNotification({ ...payload, provider: 'twilio-voice' });
+  }
+
+  private async enqueueNotification(payload: { organizationId?: string; tenantId?: string; invoiceId?: string; type: string; provider: string; data?: any }) {
+    this.logger.debug(`[NotificationsService] Enqueueing ${payload.type} for tenant=${payload.tenantId} provider=${payload.provider}`);
     const log = await this.prisma.notificationLog.create({
       data: {
         organizationId: payload.organizationId,
         tenantId: payload.tenantId,
         invoiceId: payload.invoiceId,
         type: payload.type,
-        provider: process.env.WHATSAPP_PROVIDER || 'twilio',
+        provider: payload.provider,
         payload: payload.data ?? null,
       },
     });
@@ -46,7 +56,7 @@ export class NotificationsService {
     // In dev mode, always send synchronously without queue.
     if (this.isDev || !this.queueEnabled) {
       this.logger.debug(`[NotificationsService] Queue bypass enabled: sending notification synchronously`);
-      this.sendNotificationDirectly(log.id).catch((err) => this.logger.error('Direct send failed', err));
+      this.processNotificationLog(log.id).catch((err) => this.logger.error('Direct send failed', err));
     } else if (this.queue) {
       this.logger.debug(`[NotificationsService] Production mode: adding to queue`);
       try {
@@ -56,17 +66,17 @@ export class NotificationsService {
         this.logger.error(
           `[NotificationsService] Queue add failed, falling back to direct send: ${error?.message ?? error}`,
         );
-        this.sendNotificationDirectly(log.id).catch((err) => this.logger.error('Direct send failed', err));
+        this.processNotificationLog(log.id).catch((err) => this.logger.error('Direct send failed', err));
       }
     } else {
       this.logger.warn('[NotificationsService] Queue provider unavailable, falling back to direct send');
-      this.sendNotificationDirectly(log.id).catch((err) => this.logger.error('Direct send failed', err));
+      this.processNotificationLog(log.id).catch((err) => this.logger.error('Direct send failed', err));
     }
 
     return log;
   }
 
-  private async sendNotificationDirectly(notificationLogId: string) {
+  async processNotificationLog(notificationLogId: string) {
     const log = await this.prisma.notificationLog.findUnique({ where: { id: notificationLogId } });
     if (!log) {
       this.logger.warn(`[NotificationsService] NotificationLog not found: ${notificationLogId}`);
@@ -86,6 +96,9 @@ export class NotificationsService {
       const payload = (log.payload ?? {}) as {
         text?: string;
         mediaUrl?: string;
+        voiceText?: string;
+        voice?: string;
+        language?: string;
         template?: { name: string; language: { code: string }; components?: Array<Record<string, unknown>> };
       };
 
@@ -95,10 +108,26 @@ export class NotificationsService {
         return;
       }
 
+      if (log.provider === 'twilio-voice' || log.type.endsWith('_call')) {
+        const callMessage = payload.voiceText ?? payload.text ?? `Reminder from ${log.type}`;
+        this.logger.debug(`[NotificationsService] Calling voice provider for ${phone.slice(-4)}`);
+
+        const res = await this.voiceProvider.sendCall({
+          phone,
+          message: callMessage,
+          voice: payload.voice,
+          language: payload.language,
+        });
+        const providerMessageId = res?.sid ?? res?.id ?? JSON.stringify(res);
+        this.logger.debug(`[NotificationsService] Call placed. providerMessageId=${providerMessageId}`);
+        await this.markAsSent(log.id, String(providerMessageId));
+        return;
+      }
+
       const text = payload.text ?? `Notification: ${log.type}`;
       const media = payload.mediaUrl;
 
-      this.logger.debug(`[NotificationsService] Calling provider for ${phone.slice(-4)}`);
+      this.logger.debug(`[NotificationsService] Calling WhatsApp provider for ${phone.slice(-4)}`);
 
       try {
         const res = await this.provider.sendMessage({ phone, text, mediaUrl: media, template: payload.template });
@@ -106,14 +135,12 @@ export class NotificationsService {
         this.logger.debug(`[NotificationsService] Message sent. providerMessageId=${providerMessageId}`);
         await this.markAsSent(log.id, String(providerMessageId));
       } catch (sendErr: any) {
-        // Handle Twilio "Outside messaging window" (63016) by attempting template send or falling back.
         const errMsg = String(sendErr?.message ?? sendErr);
         const isOutsideWindow = sendErr?.code === 63016 || errMsg.includes('63016') || errMsg.toLowerCase().includes('outside messaging window');
 
         if (isOutsideWindow) {
           this.logger.warn(`[NotificationsService] Provider reported outside messaging window for ${phone.slice(-4)}: ${errMsg}`);
 
-          // If a template payload is available, attempt to send it (templates must be approved by WhatsApp/Meta).
           if (payload.template) {
             this.logger.debug(`[NotificationsService] Attempting template send for notificationLog=${log.id}`);
             try {
@@ -129,12 +156,10 @@ export class NotificationsService {
             }
           }
 
-          // No template configured: mark failed with explicit guidance for operator/ops.
           await this.markAsFailed(log.id, 'Outside messaging window (63016): template required for business-initiated WhatsApp messages');
           return;
         }
 
-        // Non-63016 errors: mark as failed and record the error.
         this.logger.error(`[NotificationsService] Send error: ${errMsg}`);
         await this.markAsFailed(log.id, errMsg);
       }

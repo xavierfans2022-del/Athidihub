@@ -174,8 +174,15 @@ class AppLocalizationsHi extends AppLocalizations {
   String get sendBulkReminders => 'बल्क अनुस्मारक भेजें';
 
   @override
+  String get sendBulkCallReminders => 'बल्क कॉल अनुस्मारक भेजें';
+
+  @override
   String get sendPersonalizedWhatsAppReminders =>
       'व्यक्तिगत व्हाट्सएप रिमाइंडर भेजें';
+
+  @override
+  String get sendPersonalizedCallReminders =>
+      'लंबित या देय किराए वाले सभी किरायेदारों को व्यक्तिगत कॉल अनुस्मारक भेजें।';
 
   @override
   String get includeOverdue => 'बकाया शामिल करें';
@@ -194,6 +201,10 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get queuingWhatsAppMessages =>
       'व्हाट्सएप संदेश कतारबद्ध किए जा रहे हैं';
+
+  @override
+  String get queuingCallReminders =>
+      'कॉल अनुस्मारक कतार में भेजे जा रहे हैं...';
 
   @override
   String get thisMayTakeAMoment => 'इसमें थोड़ा समय लग सकता है';
@@ -607,6 +618,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get generateInvoice => 'इनवॉइस बनाएं';
+
+  @override
+  String get callRemindersQueued => 'कॉल अनुस्मारक सफलतापूर्वक कतारबद्ध किए गए';
 
   @override
   String get successfullyQueued => 'सफलतापूर्वक कतारबद्ध';

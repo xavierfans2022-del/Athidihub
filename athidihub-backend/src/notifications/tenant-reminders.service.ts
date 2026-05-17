@@ -14,6 +14,7 @@ interface BulkReminderOptions {
   mode?: ReminderMode;
   force?: boolean;
   dryRun?: boolean;
+  voiceCall?: boolean;
 }
 
 interface ReminderTenantGroup {
@@ -43,6 +44,7 @@ export class TenantRemindersService {
 
   async sendBulkReminders(options: BulkReminderOptions) {
     const mode = options.mode ?? 'payment';
+    const voiceCall = options.voiceCall ?? process.env.REMINDER_VOICE_CALLS_ENABLED === 'true';
     if (mode === 'custom' && !options.message?.trim()) {
       throw new BadRequestException('message is required for custom reminders');
     }
@@ -70,6 +72,7 @@ export class TenantRemindersService {
             message: options.message!,
             force: options.force ?? false,
             dryRun: options.dryRun ?? false,
+            voiceCall,
           });
           summary.remindersQueued += result.queued;
           summary.remindersSkippedAlreadySent += result.skippedAlreadySent;
@@ -84,6 +87,7 @@ export class TenantRemindersService {
           includeOverdue: options.includeOverdue ?? true,
           force: options.force ?? false,
           dryRun: options.dryRun ?? false,
+          voiceCall,
         });
         summary.remindersQueued += result.queued;
         summary.remindersSkippedAlreadySent += result.skippedAlreadySent;
@@ -104,6 +108,7 @@ export class TenantRemindersService {
     includeOverdue?: boolean;
     force?: boolean;
     dryRun?: boolean;
+    voiceCall?: boolean;
   }) {
     const daysAhead = Math.max(0, options.daysAhead ?? 3);
     const now = new Date();
@@ -191,11 +196,12 @@ export class TenantRemindersService {
         orderBy: { createdAt: 'desc' },
       });
 
-      if (alreadySent && !options.force) {
-        summary.skippedAlreadySent += 1;
-        summary.reminders.push({ tenantId: group.tenantId, tenantName: group.tenantName, status: 'skipped', reason: 'already_sent_today' });
-        continue;
-      }
+      // Already-sent guard disabled per request: always send notifications
+      // if (alreadySent && !options.force) {
+      //   summary.skippedAlreadySent += 1;
+      //   summary.reminders.push({ tenantId: group.tenantId, tenantName: group.tenantName, status: 'skipped', reason: 'already_sent_today' });
+      //   continue;
+      // }
 
       const overdueInvoices = group.invoices.filter((invoice) => invoice.status === InvoiceStatus.OVERDUE || invoice.dueDate < now);
       const dueInvoices = group.invoices.filter((invoice) => invoice.status === InvoiceStatus.PENDING && invoice.dueDate >= now);
@@ -240,6 +246,35 @@ export class TenantRemindersService {
           },
         });
 
+        if (options.voiceCall) {
+          const callType = overdueInvoices.length > 0 ? 'payment_overdue_reminder_call' : 'payment_reminder_call';
+          const alreadySentCall = await this.prisma.notificationLog.findFirst({
+            where: {
+              organizationId: organization.id,
+              tenantId: group.tenantId,
+              type: callType,
+              provider: 'twilio-voice',
+              createdAt: { gte: startOfDay },
+              status: { in: ['queued', 'sent'] },
+            },
+            orderBy: { createdAt: 'desc' },
+          });
+
+          // Always enqueue voice calls (disable already-sent guard)
+          await this.notificationsService.enqueueVoiceCallNotification({
+            organizationId: organization.id,
+            tenantId: group.tenantId,
+            type: callType,
+            data: {
+              voiceText: overdueInvoices.length > 0
+                ? `Hello ${group.tenantName}. This is an automated rent reminder from ${organization.name}. You have ${overdueInvoices.length} overdue rent payment${overdueInvoices.length > 1 ? 's' : ''}, totaling rupees ${Math.round(totalDue).toLocaleString('en-IN')}. Please clear your dues as soon as possible. Thank you.`
+                : `Hello ${group.tenantName}. This is an automated rent reminder from ${organization.name}. You have rent due soon, totaling rupees ${Math.round(totalDue).toLocaleString('en-IN')}. Please review your payment details in the Athidihub app. Thank you.`,
+              voice: 'alice',
+              language: 'en-IN',
+            },
+          });
+        }
+
         if (group.profileId) {
           await this.fcmNotificationsService.sendToProfile(group.profileId, {
             title: `Rent reminder - ${organization.name}`,
@@ -269,6 +304,7 @@ export class TenantRemindersService {
     message: string;
     force?: boolean;
     dryRun?: boolean;
+    voiceCall?: boolean;
   }) {
     const organization = await this.prisma.organization.findUnique({
       where: { id: options.organizationId },
@@ -318,11 +354,12 @@ export class TenantRemindersService {
         orderBy: { createdAt: 'desc' },
       });
 
-      if (alreadySent && !options.force) {
-        summary.skippedAlreadySent += 1;
-        summary.reminders.push({ tenantId: tenant.id, tenantName: tenant.name, status: 'skipped', reason: 'already_sent_today' });
-        continue;
-      }
+      // Already-sent guard disabled per request: always send custom reminders
+      // if (alreadySent && !options.force) {
+      //   summary.skippedAlreadySent += 1;
+      //   summary.reminders.push({ tenantId: tenant.id, tenantName: tenant.name, status: 'skipped', reason: 'already_sent_today' });
+      //   continue;
+      // }
 
       if (!options.dryRun) {
         await this.notificationsService.enqueueWhatsAppNotification({
@@ -335,6 +372,20 @@ export class TenantRemindersService {
             customMessage: options.message,
           },
         });
+
+        if (options.voiceCall) {
+          // Already-sent guard disabled for custom voice calls; always enqueue
+          await this.notificationsService.enqueueVoiceCallNotification({
+            organizationId: organization.id,
+            tenantId: tenant.id,
+            type: 'custom_tenant_reminder_call',
+            data: {
+              voiceText: `Hello ${tenant.name}. This is an automated notice from ${organization.name}. ${options.message}`,
+              voice: 'alice',
+              language: 'en-IN',
+            },
+          });
+        }
 
         if (profileId) {
           await this.fcmNotificationsService.sendToProfile(profileId, {
@@ -357,11 +408,12 @@ export class TenantRemindersService {
     return summary;
   }
 
-  async runCronPaymentReminders(options: { daysAhead?: number; includeOverdue?: boolean }) {
+  async runCronPaymentReminders(options: { daysAhead?: number; includeOverdue?: boolean; voiceCall?: boolean }) {
     return this.sendBulkReminders({
       mode: 'payment',
       daysAhead: options.daysAhead ?? 3,
       includeOverdue: options.includeOverdue ?? true,
+      voiceCall: options.voiceCall ?? process.env.REMINDER_VOICE_CALLS_ENABLED === 'true',
     });
   }
 

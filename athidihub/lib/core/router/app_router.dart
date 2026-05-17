@@ -4,12 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:athidihub/core/logging/app_logger.dart';
+import 'package:athidihub/features/auth/providers/auth_provider.dart';
 
 // ── Owner screens
 import 'package:athidihub/features/auth/presentation/screens/splash_screen_new.dart';
 import 'package:athidihub/features/auth/presentation/screens/login_screen.dart';
 import 'package:athidihub/features/auth/presentation/screens/register_screen.dart';
 import 'package:athidihub/features/auth/presentation/screens/otp_screen.dart';
+import 'package:athidihub/features/auth/presentation/screens/mpin_setup_screen.dart';
+import 'package:athidihub/features/auth/presentation/screens/mpin_unlock_screen.dart';
 import 'package:athidihub/features/auth/presentation/screens/profile_screen.dart';
 import 'package:athidihub/features/onboarding/screens/onboarding_shell.dart';
 import 'package:athidihub/features/dashboard/screens/main_shell.dart';
@@ -82,14 +85,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       final session = Supabase.instance.client.auth.currentSession;
       final isLoggedIn = session != null;
       final path = state.fullPath ?? '';
+      final mpinUnlocked = ref.read(mpinUnlockedProvider);
+      final mpinFlow = ref.read(mpinFlowProvider);
 
       final isSplash     = path == '/splash';
       final isAuthRoute  = path.startsWith('/auth');
       final isOnboarding = path.startsWith('/onboarding');
+      final isMpinRoute  = path.startsWith('/auth/mpin');
 
       if (isSplash) return null;
+      if (isLoggedIn && !mpinUnlocked && !isMpinRoute) {
+        return mpinFlow == MpinFlow.setup ? '/auth/mpin/setup' : '/auth/mpin/unlock';
+      }
       if (!isLoggedIn && !isAuthRoute) return '/auth/login';
-      if (isLoggedIn && isAuthRoute) return '/splash';
+      if (isLoggedIn && isAuthRoute && !isMpinRoute) return '/splash';
       if (isOnboarding && isLoggedIn) return null;
 
       return null;
@@ -100,7 +109,38 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ── Auth ──────────────────────────────────────────────
       GoRoute(path: '/auth/login',    name: 'login',    builder: (c, s) => const LoginScreen()),
       GoRoute(path: '/auth/register', name: 'register', builder: (c, s) => const RegisterScreen()),
-      GoRoute(path: '/auth/otp',      name: 'otp',      builder: (c, s) => OtpScreen(phone: s.extra as String? ?? '')),
+      GoRoute(
+        path: '/auth/otp',
+        name: 'otp',
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>? ?? const <String, dynamic>{};
+          return OtpScreen(
+            phone: extra['phone'] as String? ?? '',
+            nextRoute: extra['nextRoute'] as String? ?? '/splash',
+            extraData: extra['extraData'] as Map<String, dynamic>?,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/auth/mpin/setup',
+        name: 'mpin-setup',
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>? ?? const <String, dynamic>{};
+          return MpinSetupScreen(
+            phone: extra['phone'] as String? ?? '',
+            fullName: extra['fullName'] as String? ?? '',
+            role: extra['role'] as String? ?? 'OWNER',
+          );
+        },
+      ),
+      GoRoute(
+        path: '/auth/mpin/unlock',
+        name: 'mpin-unlock',
+        builder: (c, s) {
+          final extra = s.extra as Map<String, dynamic>? ?? const <String, dynamic>{};
+          return MpinUnlockScreen(phone: extra['phone'] as String? ?? '');
+        },
+      ),
 
       // ── KYC ───────────────────────────────────────────────
       GoRoute(

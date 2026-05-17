@@ -176,8 +176,15 @@ class AppLocalizationsTe extends AppLocalizations {
   String get sendBulkReminders => 'బల్క్ రిమైండర్లు పంపండి';
 
   @override
+  String get sendBulkCallReminders => 'బల్క్ కాల్ రిమైండర్లు పంపండి';
+
+  @override
   String get sendPersonalizedWhatsAppReminders =>
       'వ్యక్తిగతీకరించిన వాట్సాప్ రిమైండర్‌లను పంపండి';
+
+  @override
+  String get sendPersonalizedCallReminders =>
+      'పెండింగ్ లేదా గడువు మించిన అద్దె ఉన్న అన్ని అద్దెకారులకు వ్యక్తిగత కాల్ రిమైండర్‌లను పంపండి.';
 
   @override
   String get includeOverdue => 'బకాయిలను చేర్చండి';
@@ -195,6 +202,9 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get queuingWhatsAppMessages => 'వాట్సాప్ సందేశాలను క్యూలో ఉంచుతోంది';
+
+  @override
+  String get queuingCallReminders => 'కాల్ రిమైండర్‌లను క్యూలో ఉంచుతోంది...';
 
   @override
   String get thisMayTakeAMoment => 'దీనికి కొంత సమయం పట్టవచ్చు';
@@ -609,6 +619,10 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get generateInvoice => 'ఇన్వాయిస్ సృష్టించండి';
+
+  @override
+  String get callRemindersQueued =>
+      'కాల్ రిమైండర్‌లు విజయవంతంగా క్యూలో ఉంచబడ్డాయి';
 
   @override
   String get successfullyQueued => 'విజయవంతంగా క్యూలో ఉంచబడ్డాయి';

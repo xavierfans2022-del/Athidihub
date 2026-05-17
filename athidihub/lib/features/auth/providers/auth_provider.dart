@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:athidihub/core/logging/app_logger.dart';
 import 'package:athidihub/core/providers/supabase_provider.dart';
@@ -8,11 +9,54 @@ import 'package:athidihub/core/constants/app_constants.dart';
 import 'package:athidihub/features/onboarding/providers/navigation_provider.dart';
 import 'package:athidihub/features/dashboard/providers/dashboard_provider.dart';
 
+enum MpinFlow {
+  none,
+  setup,
+  unlock,
+}
+
+final mpinFlowProvider = StateProvider<MpinFlow>((ref) => MpinFlow.none);
+final mpinUnlockedProvider = StateProvider<bool>((ref) => false);
+
 class AuthNotifier extends StateNotifier<AsyncValue<void>> {
   AuthNotifier(this._ref) : super(const AsyncValue.data(null));
 
   final Ref _ref;
   SupabaseClient get _client => _ref.read(supabaseClientProvider);
+
+  Dio get _dio => Dio(
+        BaseOptions(
+          baseUrl: AppConstants.baseUrl,
+          connectTimeout: AppConstants.connectTimeout,
+          receiveTimeout: AppConstants.receiveTimeout,
+        ),
+      );
+
+  String _normalizePhoneForOtp(String value) {
+    final compact = value.trim().replaceAll(RegExp(r'[\s\-()]'), '');
+    if (compact.isEmpty) {
+      throw const FormatException('Missing phone number');
+    }
+
+    if (compact.startsWith('+')) {
+      if (!RegExp(r'^\+\d{8,15}$').hasMatch(compact)) {
+        throw const FormatException('Invalid phone number format');
+      }
+
+      if (!compact.startsWith(AppConstants.defaultPhoneCountryCode)) {
+        throw const FormatException('Use an Indian phone number with +91 country code');
+      }
+
+      return compact;
+    }
+
+    final digits = compact.replaceAll(RegExp(r'\D+'), '');
+    if (digits.length != 10) {
+      throw const FormatException('Enter a 10-digit Indian mobile number');
+    }
+
+    return '${AppConstants.defaultPhoneCountryCode}$digits';
+  }
 
   Future<void> _runAuthAction({
     required String action,
@@ -80,71 +124,119 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     }
   }
 
-  Future<void> loginWithEmail(String email, String password) async {
-    await _runAuthAction(
-      action: 'sign_in_email',
-      context: {'email': AppLogger.maskEmail(email)},
-      task: () async {
-        await _client.auth.signInWithPassword(email: email, password: password);
-        await _onSignInSuccess();
-      },
-    );
-  }
-
-  Future<void> loginWithEmailOtp(String email) async {
-    await _runAuthAction(
-      action: 'send_email_otp',
-      context: {'email': AppLogger.maskEmail(email)},
-      task: () async {
-        await _client.auth.signInWithOtp(email: email);
-      },
-    );
-  }
-
-  Future<void> loginWithPhone(String phone) async {
+  Future<void> requestPhoneOtp(String phone) async {
     await _runAuthAction(
       action: 'send_phone_otp',
       context: {'phone': AppLogger.maskPhone(phone)},
       task: () async {
-        await _client.auth.signInWithOtp(phone: phone);
+        final normalizedPhone = _normalizePhoneForOtp(phone);
+        await _client.auth.signInWithOtp(phone: normalizedPhone);
       },
     );
   }
 
-  Future<void> verifyOtp(String identifier, String otp) async {
+  Future<void> verifyPhoneOtp(String phone, String otp) async {
     await _runAuthAction(
-      action: 'verify_otp',
-      context: {
-        'identifier': identifier.contains('@')
-            ? AppLogger.maskEmail(identifier)
-            : AppLogger.maskPhone(identifier),
-      },
+      action: 'verify_phone_otp',
+      context: {'phone': AppLogger.maskPhone(phone)},
       task: () async {
-        final isEmail = identifier.contains('@');
+        final normalizedPhone = _normalizePhoneForOtp(phone);
         await _client.auth.verifyOTP(
-          email: isEmail ? identifier : null,
-          phone: !isEmail ? identifier : null,
+          phone: normalizedPhone,
           token: otp,
-          type: isEmail ? OtpType.email : OtpType.sms,
+          type: OtpType.sms,
         );
-        await _onSignInSuccess();
       },
     );
   }
 
-  Future<void> registerWithEmail(String email, String password, String name) async {
+  Future<void> setupMpin({
+    required String pin,
+    required String fullName,
+    required String role,
+  }) async {
     await _runAuthAction(
-      action: 'sign_up_email',
-      context: {'email': AppLogger.maskEmail(email), 'name': name},
+      action: 'setup_mpin',
+      context: {
+        'name': fullName,
+        'role': role,
+      },
       task: () async {
-        await _client.auth.signUp(
-          email: email,
-          password: password,
-          data: {'name': name},
+        final session = _client.auth.currentSession;
+        if (session == null) {
+          throw Exception('Session not available');
+        }
+
+        await _client.auth.updateUser(
+          UserAttributes(data: {
+            'full_name': fullName,
+            'name': fullName,
+            'role': role,
+          }),
         );
-        await _onSignInSuccess();
+
+        final response = await _dio.post<Map<String, dynamic>>(
+          '/auth/mpin/setup',
+          data: {
+            'pin': pin,
+            'fullName': fullName,
+            'role': role,
+          },
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer ${session.accessToken}',
+            },
+          ),
+        );
+
+        if (response.statusCode != null && response.statusCode! >= 400) {
+          throw Exception('Unable to set MPIN');
+        }
       },
     );
+  }
+
+  Future<void> verifyMpin(String pin) async {
+    await _runAuthAction(
+      action: 'verify_mpin',
+      context: const {},
+      task: () async {
+        final session = _client.auth.currentSession;
+        if (session == null) {
+          throw Exception('Session not available');
+        }
+
+        final response = await _dio.post<Map<String, dynamic>>(
+          '/auth/mpin/verify',
+          data: {'pin': pin},
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer ${session.accessToken}',
+            },
+          ),
+        );
+
+        if (response.statusCode != null && response.statusCode! >= 400) {
+          throw Exception('Invalid MPIN');
+        }
+      },
+    );
+  }
+
+  Future<void> finalizeSignedInSession() async {
+    _ref.read(mpinUnlockedProvider.notifier).state = true;
+    _ref.read(mpinFlowProvider.notifier).state = MpinFlow.none;
+    await _onSignInSuccess();
+  }
+
+  void prepareForSetup() {
+    _ref.read(mpinFlowProvider.notifier).state = MpinFlow.setup;
+    _ref.read(mpinUnlockedProvider.notifier).state = false;
+  }
+
+  void prepareForUnlock() {
+    _ref.read(mpinFlowProvider.notifier).state = MpinFlow.unlock;
+    _ref.read(mpinUnlockedProvider.notifier).state = false;
   }
 
   Future<void> updateUserData(Map<String, dynamic> data) async {
@@ -163,6 +255,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
       context: const {},
       task: () async {
         await _onSignOutSuccess();
+        _ref.read(mpinFlowProvider.notifier).state = MpinFlow.none;
+        _ref.read(mpinUnlockedProvider.notifier).state = false;
         await _client.auth.signOut();
       },
     );

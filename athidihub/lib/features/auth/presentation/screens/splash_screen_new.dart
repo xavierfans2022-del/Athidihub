@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:athidihub/core/providers/supabase_provider.dart';
-import 'package:athidihub/core/theme/app_colors.dart';
+import 'package:athidihub/features/auth/providers/auth_provider.dart';
 import 'package:athidihub/features/onboarding/providers/navigation_provider.dart';
 
 class SplashScreenNew extends ConsumerStatefulWidget {
@@ -42,6 +42,12 @@ class _SplashScreenNewState extends ConsumerState<SplashScreenNew>
     final session = ref.read(supabaseClientProvider).auth.currentSession;
     if (session == null) {
       context.go('/auth/login');
+      return;
+    }
+
+    if (!ref.read(mpinUnlockedProvider)) {
+      final route = ref.read(mpinFlowProvider) == MpinFlow.setup ? '/auth/mpin/setup' : '/auth/mpin/unlock';
+      context.go(route);
       return;
     }
 

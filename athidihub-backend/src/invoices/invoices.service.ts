@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { InvoiceStatus } from '@prisma/client';
-import { BadRequestException } from '@nestjs/common';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
+
 export class InvoicesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly storageService: StorageService) {}
 
   private invoiceInclude = {
     tenant: {
@@ -201,4 +202,114 @@ export class InvoicesService {
       overdueCount: overdue._count,
     };
   }
+
+  /**
+   * Generate a neat PDF for the invoice and upload to storage. Returns public URL.
+   */
+  async generateInvoicePdf(invoiceId: string) {
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: { tenant: { include: { organization: true } } },
+    });
+
+    if (!invoice) throw new NotFoundException('Invoice not found');
+
+    // lazy-require to avoid startup dependency issues
+    // pdfkit is lightweight and works without headless browser
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const PDFDocument = require('pdfkit');
+
+    const doc = new PDFDocument({ size: 'A4', margin: 40 });
+    const chunks: Buffer[] = [];
+    doc.on('data', (c: Buffer) => chunks.push(c));
+
+    const endPromise = new Promise<Buffer>((resolve) => doc.on('end', () => resolve(Buffer.concat(chunks))));
+
+    const org = invoice.tenant?.organization;
+    // Header
+    if (org?.logoUrl) {
+      try {
+        // fetch logo if available — node global fetch should exist on modern Node
+        // ignore failures
+        // eslint-disable-next-line no-undef
+        const resp = await fetch(org.logoUrl);
+        if (resp && resp.ok) {
+          const arr = await resp.arrayBuffer();
+          const imgBuf = Buffer.from(arr);
+          doc.image(imgBuf, 40, 40, { width: 90 });
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    doc.fontSize(18).text(org?.name ?? 'Invoice', 0, 50, { align: 'right' });
+    doc.moveDown();
+
+    // Tenant & Invoice meta
+    doc.fontSize(10);
+    doc.text(`Invoice ID: ${invoice.id}`, { continued: true }).text(``, { align: 'right' });
+    doc.text(`Tenant: ${invoice.tenant?.name ?? ''}`);
+    doc.text(`Month: ${invoice.month}/${invoice.year}`);
+    doc.text(`Due Date: ${invoice.dueDate?.toDateString() ?? ''}`);
+    doc.moveDown();
+
+    // Table-like presentation
+    const items = [
+      { label: 'Base Rent', amount: Number(invoice.baseRent || 0) },
+      { label: 'Utility Charges', amount: Number(invoice.utilityCharges || 0) },
+      { label: 'Food Charges', amount: Number(invoice.foodCharges || 0) },
+      { label: 'Late Fee', amount: Number(invoice.lateFee || 0) },
+      { label: 'Discount', amount: -Math.abs(Number(invoice.discount || 0)) },
+    ];
+
+    const startX = 40;
+    let y = doc.y;
+    doc.fontSize(11).text('Description', startX, y);
+    doc.text('Amount (INR)', 420, y, { width: 100, align: 'right' });
+    y += 20;
+    doc.moveTo(startX, y - 5).lineTo(555, y - 5).stroke();
+
+    for (const it of items) {
+      doc.fontSize(11).text(it.label, startX, y);
+      doc.text(it.amount.toLocaleString('en-IN', { maximumFractionDigits: 2 }), 420, y, { width: 100, align: 'right' });
+      y += 18;
+    }
+
+    doc.moveTo(startX, y - 5).lineTo(555, y - 5).stroke();
+    y += 10;
+
+    doc.fontSize(12).text('Total', startX, y);
+    doc.font('Helvetica-Bold').text(Number(invoice.totalAmount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 }), 420, y, {
+      width: 100,
+      align: 'right',
+    });
+    doc.font('Helvetica');
+
+    doc.moveDown(2);
+    doc.fontSize(10).text('Notes:', { underline: true });
+    const notes = (invoice as any).notes;
+    if (notes) {
+      doc.text(notes as string);
+    } else {
+      doc.text('Please pay by the due date to avoid late fees.');
+    }
+
+    doc.moveDown(2);
+    doc.fontSize(9).text(`Generated: ${new Date().toLocaleString()}`);
+
+    doc.end();
+
+    const pdfBuffer = await endPromise;
+
+    // Upload to storage
+    const objectPath = `invoices/${invoice.id}.pdf`;
+    const uploadResp = await this.storageService.uploadFileBuffer('documents', objectPath, pdfBuffer, 'application/pdf', `invoice_${invoice.id}.pdf`);
+
+    // Persist pdfUrl on invoice record
+    await this.prisma.invoice.update({ where: { id: invoice.id }, data: { pdfUrl: uploadResp.publicUrl } });
+
+    return uploadResp.publicUrl;
+  }
+
 }

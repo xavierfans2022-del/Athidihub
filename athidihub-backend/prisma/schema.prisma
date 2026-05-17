@@ -12,13 +12,16 @@ generator client {
 
 model Profile {
   id        String   @id @default(uuid())
-  email     String   @unique
   phone     String?  @unique
   fullName  String?
   avatarUrl String?
   role      UserRole @default(OWNER)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  mpinHash           String?
+  mpinUpdatedAt      DateTime?
+  mpinFailedAttempts Int      @default(0)
+  mpinLockedUntil    DateTime?
 
   organizations      Organization[]      @relation("OrgOwner")
   orgMemberships     OrgMember[]

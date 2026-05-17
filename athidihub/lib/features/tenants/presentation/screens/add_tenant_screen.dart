@@ -19,14 +19,14 @@ class _AddTenantScreenState extends ConsumerState<AddTenantScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
   final _emergencyCtrl = TextEditingController();
   // deposit removed from tenant model; security deposits are per-assignment
   DateTime _joiningDate = DateTime.now();
 
   @override
   void dispose() {
-    _nameCtrl.dispose(); _phoneCtrl.dispose(); _emailCtrl.dispose();
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
     _emergencyCtrl.dispose();
     super.dispose();
   }
@@ -54,7 +54,8 @@ class _AddTenantScreenState extends ConsumerState<AddTenantScreen> {
       'organizationId': orgId,
       'name': _nameCtrl.text.trim(),
       'phone': _phoneCtrl.text.trim(),
-      'email': _emailCtrl.text.trim(),
+      // email removed from UI; send placeholder derived from phone so backend validation continues to pass
+      'email': '${_phoneCtrl.text.trim()}@no-reply.athidihub',
       'emergencyContact': _emergencyCtrl.text.trim(),
       'joiningDate': _joiningDate.toIso8601String(),
     });
@@ -90,17 +91,6 @@ class _AddTenantScreenState extends ConsumerState<AddTenantScreen> {
               AppTextField(controller: _nameCtrl, label: 'Full name', hint: 'e.g. Rahul Kumar', prefixIcon: Icons.person_outline_rounded, textCapitalization: TextCapitalization.words, validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null),
               const SizedBox(height: 16),
               AppTextField(controller: _phoneCtrl, label: 'Phone number', hint: '+91 98765 43210', keyboardType: TextInputType.phone, prefixIcon: Icons.phone_outlined, validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: _emailCtrl, label: 'Email address', hint: 'rahul@example.com',
-                keyboardType: TextInputType.emailAddress, prefixIcon: Icons.email_outlined,
-                validator: (v) {
-                  final value = v?.trim() ?? '';
-                  if (value.isEmpty) return 'Required';
-                  if (!value.contains('@') || !value.contains('.')) return 'Enter a valid email';
-                  return null;
-                },
-              ),
               const SizedBox(height: 16),
               AppTextField(controller: _emergencyCtrl, label: 'Emergency contact', hint: '+91 98765 00000', keyboardType: TextInputType.phone, prefixIcon: Icons.emergency_outlined, validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null),
               const SizedBox(height: 24),

@@ -16,14 +16,13 @@ export class TenantsService {
     }
 
     let profile = await this.prisma.profile.findUnique({
-      where: { email: createTenantDto.email },
+      where: { phone: createTenantDto.phone },
     });
 
     if (!profile) {
       profile = await this.prisma.profile.create({
         data: {
           id: uuidv4(),
-          email: createTenantDto.email,
           phone: createTenantDto.phone,
           fullName: createTenantDto.name,
         },

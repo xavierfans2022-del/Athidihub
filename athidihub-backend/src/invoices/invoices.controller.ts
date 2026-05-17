@@ -77,6 +77,11 @@ export class InvoicesController {
     return this.invoicesService.findOne(id);
   }
 
+  @Get(':id/pdf')
+  async getPdf(@Param('id') id: string) {
+    return { pdfUrl: await this.invoicesService.generateInvoicePdf(id) };
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateInvoiceDto: UpdateInvoiceDto) {
     return this.invoicesService.update(id, updateInvoiceDto);

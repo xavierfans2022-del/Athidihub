@@ -1,18 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { PrismaService } from '../prisma/prisma.service';
-
-type SupabaseJwtPayload = {
-  sub?: string;
-  email?: string;
-  phone?: string | null;
-  aud?: string;
-  exp?: number;
-  user_metadata?: {
-    name?: string | null;
-  };
-};
+import { AuthService, SupabaseJwtPayload } from './auth.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -20,7 +8,7 @@ export class JwtAuthGuard implements CanActivate {
 
   private jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly authService: AuthService) {}
 
   private normalizeSupabaseUrl(value: string): string {
     const cleaned = value.trim().replace(/[;"']+$/g, '');
@@ -61,114 +49,10 @@ export class JwtAuthGuard implements CanActivate {
       const { payload, protectedHeader } = await jwtVerify(token, this.jwks);
       const claims = payload as SupabaseJwtPayload;
       this.logger.debug(
-        `JWT verified alg=${protectedHeader.alg} kid=${protectedHeader.kid ?? 'missing'} sub=${claims.sub ?? 'missing'} email=${claims.email ?? 'missing'} exp=${claims.exp ?? 'missing'} aud=${claims.aud ?? 'missing'}`,
+        `JWT verified alg=${protectedHeader.alg} kid=${protectedHeader.kid ?? 'missing'} sub=${claims.sub ?? 'missing'} phone=${claims.phone ?? 'missing'} exp=${claims.exp ?? 'missing'} aud=${claims.aud ?? 'missing'}`,
       );
 
-      const userId = claims.sub;
-      if (!userId) {
-        throw new UnauthorizedException('Authentication failed');
-      }
-
-      // Normalize incoming identifiers for consistent lookups
-      const normalizeEmail = (e?: string) => (e ? e.trim().toLowerCase() : undefined);
-      const normalizePhone = (p?: string | null) => (p ? p.replace(/\D+/g, '') : undefined);
-
-      const emailNorm = normalizeEmail(claims.email);
-      const phoneNorm = normalizePhone(claims.phone ?? undefined);
-
-      let profile = await this.prisma.profile.findUnique({ where: { id: userId } });
-
-      if (!profile && emailNorm) {
-        profile = await this.prisma.profile.findUnique({ where: { email: emailNorm } });
-        if (profile) {
-          this.logger.debug(`Profile found by email for userId=${userId}`);
-        }
-      }
-
-      if (!profile && phoneNorm) {
-        profile = await this.prisma.profile.findUnique({ where: { phone: phoneNorm } });
-        if (profile) {
-          this.logger.debug(`Profile found by phone for userId=${userId}`);
-        }
-      }
-
-      // If profile still not found and claims exist, attempt a broader search (handles formatting differences)
-      if (!profile && (emailNorm || phoneNorm)) {
-        profile = await this.prisma.profile.findFirst({
-          where: {
-            OR: [
-              ...(emailNorm ? [{ email: emailNorm }] : []),
-              ...(phoneNorm ? [{ phone: phoneNorm }] : []),
-            ],
-          },
-        });
-        if (profile) {
-          this.logger.debug(`Profile found by broader lookup for userId=${userId}`);
-        }
-      }
-
-      if (!profile) {
-        this.logger.debug(`Creating profile for userId=${userId}`);
-        try {
-          profile = await this.prisma.profile.create({
-            data: {
-              id: userId,
-              email: emailNorm || `${userId}@placeholder.com`,
-              phone: phoneNorm ?? null,
-              fullName: claims.user_metadata?.name ?? null,
-            },
-          });
-        } catch (createError: unknown) {
-          // Handle Prisma unique constraint errors (P2002) explicitly to recover gracefully
-          if (createError instanceof Prisma.PrismaClientKnownRequestError && createError.code === 'P2002') {
-            this.logger.debug(`Prisma unique constraint (P2002) on create for userId=${userId}: ${JSON.stringify(createError.meta)}`);
-            // Determine which field(s) caused the conflict and attempt targeted recovery
-            const targets: string[] = Array.isArray(createError.meta?.target) ? (createError.meta!.target as string[]) : [];
-            let recovered: any = null;
-            if (targets.includes('email') && emailNorm) {
-              recovered = await this.prisma.profile.findUnique({ where: { email: emailNorm } });
-            }
-            if (!recovered && targets.includes('phone') && phoneNorm) {
-              recovered = await this.prisma.profile.findUnique({ where: { phone: phoneNorm } });
-            }
-            // As a last resort, try a broader OR search using normalized values
-            if (!recovered && (emailNorm || phoneNorm)) {
-              recovered = await this.prisma.profile.findFirst({
-                where: {
-                  OR: [
-                    ...(emailNorm ? [{ email: emailNorm }] : []),
-                    ...(phoneNorm ? [{ phone: phoneNorm }] : []),
-                  ],
-                },
-              });
-            }
-
-            if (recovered) {
-              profile = recovered;
-              this.logger.debug(`Profile recovered after P2002 conflict for userId=${userId}, using id=${recovered.id}`);
-            } else {
-              // If still not found, rethrow original error so caller sees the problem
-              throw createError;
-            }
-          }
-          // Fallback: preserve original behavior for unknown errors
-          throw createError;
-        }
-      } else {
-        this.logger.debug(`Profile found for userId=${userId}`);
-
-        if (profile.id !== userId) {
-          this.logger.warn(
-            `Existing profile email matches but id differs. Using profile id=${profile.id} for authenticated userId=${userId}`,
-          );
-        }
-      }
-
-      // Ensure profile is available after create/recovery attempts
-      if (!profile) {
-        this.logger.error(`Profile creation/recovery failed for userId=${userId}`);
-        throw new UnauthorizedException('Authentication failed');
-      }
+      const profile = await this.authService.syncProfileFromJwt(claims);
 
       request.user = profile;
       this.logger.debug(`JWT guard authenticated userId=${profile.id}`);

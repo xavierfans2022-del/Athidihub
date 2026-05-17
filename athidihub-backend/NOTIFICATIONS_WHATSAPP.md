@@ -3,6 +3,7 @@ WhatsApp Notifications (Twilio) — Production Guide
 Overview
 - The notifications system uses Twilio for WhatsApp messages via `TwilioWhatsAppProvider`.
 - Business-initiated freeform messages are restricted by WhatsApp to a 24-hour session window. Outside that window Twilio returns error 63016 ("Outside messaging window").
+- Reminder runs can optionally place a Twilio voice call after the WhatsApp notification by enabling `REMINDER_VOICE_CALLS_ENABLED=true` or passing `voiceCall: true` to the reminder endpoint.
 
 What we implemented
 - Detect Twilio 63016 errors in `NotificationsService.sendNotificationDirectly`.
@@ -16,6 +17,9 @@ Required environment variables
 - `TWILIO_MESSAGING_SERVICE_SID` (optional) — Messaging service SID
 - `WHATSAPP_DEFAULT_COUNTRY_CODE` (optional, default: +91) — used to normalize 10-digit numbers
 - `WHATSAPP_ALLOW_MOCK` (optional) — set to 'true' for local dev to avoid Twilio calls
+- `TWILIO_VOICE_FROM` — verified Twilio voice-enabled number for reminder calls
+- `TWILIO_VOICE_ALLOW_MOCK` (optional) — set to 'true' for local dev to simulate voice calls
+- `REMINDER_VOICE_CALLS_ENABLED` (optional) — set to 'true' to place reminder calls by default
 
 Production checklist
 1. Register and verify your WhatsApp Business Profile with Meta.
@@ -31,6 +35,7 @@ Failover and monitoring
 - When template send fails, the notification is marked failed and the error is recorded in `NotificationLog.error`.
 - Consider adding a fallback channel (SMS/email) for critical alerts.
 - Add monitoring/alerts for repeated 63016 errors to track missing templates or messaging-window issues.
+- Voice reminder calls use Twilio's `calls.create` with an inline TwiML payload; if you need richer call flows later, move the TwiML to a hosted endpoint.
 
 Developer notes
 - `TwilioWhatsAppProvider.sendTemplate` attempts to call Twilio's `messages.create` with a `content` array. Depending on Twilio SDK versions this may require adjustment.
